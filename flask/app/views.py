@@ -1,7 +1,8 @@
-from app import app
+from app import app, db
 import os
-from flask import flash, request, redirect
+from flask import flash, request, redirect, jsonify
 from werkzeug.utils import secure_filename
+from app.models import FileUpload
 
 @app.route("/")
 def hello_world():
@@ -26,5 +27,31 @@ def upload():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return "<p>I love Helen</p>"
+        file_upload = FileUpload(filename=filename)
+        db.session.add(file_upload)
+        db.session.commit()
+        #return FileUpload.query.order_by(FileUpload.date_added)
+        file_uploads = FileUpload.query.all()
+        file_uploads_list = []
+        for item in file_uploads:
+            file_uploads_list.append(item.to_dict())
+
+        return jsonify(file_uploads_list)
         #return redirect(url_for('download_file'),name=filename)
+
+@app.route("/uploadHistory", methods=['GET'])
+def uploadHistory():
+    file_uploads = FileUpload.query.all()
+    file_uploads_list = []
+    for item in file_uploads:
+        file_uploads_list.append(item.to_dict())
+
+    return jsonify(file_uploads_list)
+
+@app.route("/delete_upload/<id>", methods=['DELETE'])
+def delete_upload(id):
+    file_upload = FileUpload.query.get(id)
+    db.session.delete(file_upload)
+    db.session.commit()
+
+    return "FileUpload was successfully deleted"
