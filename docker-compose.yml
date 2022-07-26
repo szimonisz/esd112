@@ -1,0 +1,30 @@
+services:
+    # flask app service
+    flask:
+        # build the image using the Dockerfile found in the flask directory
+        build: ./flask
+        container_name: flask
+        restart: always
+        expose:
+          - 8080
+        # mount the project directory (the current directory) from the developer's local system to /app inside the container
+        # this will allow the developer to make local changes, and have those changes be reflected by the container (without having to rebuild it)
+
+        # link the flaskapp service to the database service
+        #links:
+        #    - db
+    # database service
+    #db:
+        # mongoDB base image
+        #    image: mongo
+        #
+    nginx:
+      build: ./nginx
+      container_name: nginx
+      restart: always
+      # map ports from host machine to the container
+      # host:container
+      # request comes from outside world to port 5000 on host machine
+      # it is then passed to port 5000 on the nginx container
+      ports:
+        - "80:80"
