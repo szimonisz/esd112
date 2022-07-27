@@ -59,9 +59,9 @@ export default {
         )
         .then((res) => {
           console.log("File Upload: Success");
-          this.uploadList = res.data;
           console.log(res.data);
           console.log(fileInput);
+          this.getUploadHistory();
         })
         .catch((err) => {
           console.log("File Upload: Failed");

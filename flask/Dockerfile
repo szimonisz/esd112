@@ -1,8 +1,11 @@
 FROM python
 
+RUN apt-get update && apt-get install -y vim
+
 
 # Copy all files from Dockerfile's current directory to the folder /app inside the image
 COPY . /app
+#COPY ./requirements.txt /app/requirements.txt
 
 # Set /app as the working directory for the RUN, CMD commands
 WORKDIR /app

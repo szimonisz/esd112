@@ -4,7 +4,7 @@
       <nav>
         <ul>
           <li><a href="/upload">Upload</a></li>
-          <li><a href="/">Edit/View/Search</a></li>
+          <li><a href="/view">Edit/View/Search</a></li>
           <li><a href="/helen">Helen</a></li>
         </ul>
       </nav>

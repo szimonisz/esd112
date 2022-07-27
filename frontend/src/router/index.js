@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import MyHelen from '../components/MyHelen.vue'
 import UploadDirectory from '../components/UploadDirectory.vue'
+import ViewDirectory from '../components/ViewDirectory.vue'
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     path: '/upload',
     name: 'upload',
     component: UploadDirectory 
+  },
+  {
+    path: '/view',
+    name: 'view',
+    component: ViewDirectory 
   }
 ]
 
