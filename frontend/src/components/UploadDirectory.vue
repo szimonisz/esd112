@@ -36,7 +36,6 @@ export default {
   name: "UploadDirectory",
   data() {
     return {
-      msg: "Upload a CSV file: ",
       uploadList: null,
     };
   },

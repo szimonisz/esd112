@@ -96,13 +96,14 @@ def all_ESDs():
         esd_list.append(esd_dict)
     return jsonify(esd_list)
 
-@app.route("/delete_esd/<id>", methods=['DELETE'])
+@app.route("/esd/<id>", methods=['DELETE'])
 def delete_esd(id):
     esd = db.session.query(ESD).get(id)
     db.session.delete(esd)
     db.session.commit()
 
     return "FileUpload was successfully deleted"
+
 @app.route("/delete_upload/<id>", methods=['DELETE'])
 def delete_upload(id):
     file_upload = FileUpload.query.get(id)
@@ -110,3 +111,15 @@ def delete_upload(id):
     db.session.commit()
 
     return "FileUpload was successfully deleted"
+
+@app.route("/esd/<id>", methods=['GET'])
+def esd(id):
+    query = db.session.query(ESD,Address,Administrator).join(Address,ESD.address_id==Address.id).join(Administrator,ESD.administrator_id==Administrator.id).filter(ESD.code ==id)
+    esd_dict = {}
+    for esd, address, admin in query:
+        esd_dict.update(esd.to_dict())
+        esd_dict.update(address.to_dict())
+        esd_dict.update(admin.to_dict())
+    print(esd_dict)
+
+    return jsonify(esd_dict)
