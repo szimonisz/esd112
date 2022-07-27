@@ -2,3 +2,5 @@ node_modules
 __pycache__/
 *.py[cod]
 nohup.out
+uploads
+*.db
