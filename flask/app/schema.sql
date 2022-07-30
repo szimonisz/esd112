@@ -1,8 +1,0 @@
-DROP TABLE IF EXISTS csv_uploads;
-
-CREATE TABLE csv_uploads (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
-);
-

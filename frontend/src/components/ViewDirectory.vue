@@ -114,6 +114,65 @@ export default {
       tableHeader,
       fieldName: esdFieldNames[i],
     }));
+    let districtTableHeaders = [
+      "ESDCode",
+      "ESDName",
+      "DistrictCode",
+      "DistrictName",
+      "AddressLine1",
+      "AddressLine2",
+      "City",
+      "State",
+      "Zipcode",
+      "AdministratorName",
+      "Phone",
+      "Email",
+    ];
+    let districtFieldNames = [
+      "esd_code",
+      "esd_name",
+      "code",
+      "name",
+      "line_one",
+      "line_two",
+      "state",
+      "zip",
+      "firstname",
+      "phone_number",
+      "email",
+    ];
+    let districtFields = districtTableHeaders.map((tableHeader, i) => ({
+      tableHeader,
+      fieldName: districtFieldNames[i],
+    }));
+    let schoolTableHeaders = ['ESDCode', 'ESDName', 'LEACode', 'LEAName', 'SchoolCode', 'SchoolName', 'LowestGrade', 'HighestGrade', 'AddressLine1',
+            'AddressLine2', 'City', 'State', 'ZipCode', 'PrincipalName', 'Email', 'Phone', 'OrgCategoryList', 'AYPCode', 'GradeCategory'];
+    let schoolFieldNames = [
+      "esd_code",
+      "esd_name",
+      "district_code",
+      "district_name",
+      "code",
+      "name",
+      "lowest_grade",
+      "highest_grade",
+      "line_one",
+      "line_two",
+      "city",
+      "state",
+      "zip",
+      "firstname",
+      "phone_number",
+      "email",
+      "school_categories",
+      "ayp_code",
+      "grade_category"
+    ];
+    let schoolFields = schoolTableHeaders.map((tableHeader, i) => ({
+      tableHeader,
+      fieldName: schoolFieldNames[i],
+    }));
+
     return {
       currentReport: "district",
       currentRecord: null,
@@ -126,21 +185,52 @@ export default {
       esdTableHeaders: esdTableHeaders,
       esdFieldNames: esdFieldNames,
       esdFields: esdFields,
+      districtTableHeaders: districtTableHeaders,
+      districtFieldNames: districtFieldNames,
+      districtFields: districtFields,
+      schoolTableHeaders: schoolTableHeaders,
+      schoolFieldNames: schoolFieldNames,
+      schoolFields: schoolFields
     };
   },
   methods: {
     updateReportType(reportType) {
       this.currentReport = reportType;
+
       if (reportType == "esd") {
         this.getAllESDs();
         this.fields = this.esdFields;
         this.tableHeaders = this.esdTableHeaders;
         this.fieldNames = this.esdFieldNames;
       } else if (reportType == "district") {
-        this.recordList = null;
+        this.getAllDistricts();
+        this.fields = this.districtTableFields;
+        this.tableHeaders = this.districtTableHeaders;
+        this.fieldNames = this.districtFieldNames;
       } else {
-        this.recordList = null;
+        this.getAllSchools();
+        this.fields = this.schoolTableFields;
+        this.tableHeaders = this.schoolTableHeaders;
+        this.fieldNames = this.schoolFieldNames;
       }
+    },
+    getAllSchools() {
+      const path = "http://localhost:80/all_schools";
+      axios
+        .get(path)
+        .then((res) => {
+          console.log(res.data);
+          if (res.data.length == 0) {
+            this.schoolList = null;
+            this.recordList = null;
+          } else {
+            this.schoolList = res.data;
+            this.recordList = this.schoolList;
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     },
     getAllESDs() {
       const path = "http://localhost:80/all_ESDs";
@@ -154,6 +244,24 @@ export default {
           } else {
             this.esdList = res.data;
             this.recordList = this.esdList;
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    },
+    getAllDistricts() {
+      const path = "http://localhost:80/all_districts";
+      axios
+        .get(path)
+        .then((res) => {
+          console.log(res.data);
+          if (res.data.length == 0) {
+            this.districtList = null;
+            this.recordList = null;
+          } else {
+            this.districtList = res.data;
+            this.recordList = this.districtList;
           }
         })
         .catch((err) => {
@@ -189,6 +297,9 @@ export default {
         });
     },
   },
+  mounted(){
+    this.updateReportType('district');
+  }
 };
 </script>
 
@@ -222,4 +333,9 @@ p {
 .radio-group {
   display: flex;
 }
+table th td tbody{ 
+  font-size: 10px; 
+  
+}
+
 </style>

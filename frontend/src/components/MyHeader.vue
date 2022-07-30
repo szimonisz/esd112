@@ -1,6 +1,6 @@
 <template>
   <div id="header">
-      <h1 class="logo">School Directory</h1>
+      <h1 class="logo">Education Directory</h1>
       <nav>
         <ul>
           <li><a href="/upload">Upload</a></li>
