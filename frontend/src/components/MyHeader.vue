@@ -3,9 +3,8 @@
       <h1 class="logo">Education Directory</h1>
       <nav>
         <ul>
-          <li><a href="/upload">Upload</a></li>
-          <li><a href="/view">Edit/View/Search</a></li>
-          <li><a href="/helen">Helen</a></li>
+          <li><a href="/upload">Upload Report</a></li>
+          <li><a href="/view">View Directory</a></li>
         </ul>
       </nav>
   </div>
@@ -19,8 +18,7 @@ export default {
 
 :root {
   /*--background: rgba(0, 214, 170, .85);*/
-  --background: rgba(82, 121, 111,.85);
-  
+  --background: rgb(82, 121, 111);
 }
 body {
   margin: 0;
@@ -39,7 +37,7 @@ nav {
 }
 nav ul {
   display: flex;
-  padding: 0;
+  padding: 10px;
   list-style: none;
 }
 nav li {

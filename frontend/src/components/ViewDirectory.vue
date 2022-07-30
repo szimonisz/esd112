@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="container">
     <Modal
       @closeButtonClicked="this.modalActive = false"
       :modalActive="modalActive"
@@ -23,6 +23,7 @@
       </div>
     </Modal>
     <div class="radio-group">
+      <p>Report Type:</p>
       <label for="district">District</label>
       <input
         @click="updateReportType('district')"
@@ -50,19 +51,19 @@
       />
     </div>
     <div>
-      <table v-if="recordList">
+      <table id="record-table" v-if="fields">
         <thead>
           <tr>
-            <th v-for="header in tableHeaders" :key="header.value">
-              {{ header }}
+            <th v-for="field in fields" :key="field.value">
+              {{ field.tableHeader }}
             </th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(item, index) in recordList" :key="index">
-            <td v-for="field in fieldNames" :key="field.value">
-              {{ item[field] }}
+            <td v-for="field in fields" :key="field.value">
+              {{ item[field.fieldName] }}
             </td>
             <td>
               <button class="edit-record" @click="editRecord(item.code)">
@@ -115,16 +116,16 @@ export default {
       fieldName: esdFieldNames[i],
     }));
     let districtTableHeaders = [
-      "ESDCode",
-      "ESDName",
-      "DistrictCode",
-      "DistrictName",
-      "AddressLine1",
-      "AddressLine2",
+      "ESD Code",
+      "ESD Name",
+      "District Code",
+      "District Name",
+      "Address Line 1",
+      "Address Line 2",
       "City",
       "State",
       "Zipcode",
-      "AdministratorName",
+      "Administrator Name",
       "Phone",
       "Email",
     ];
@@ -135,6 +136,7 @@ export default {
       "name",
       "line_one",
       "line_two",
+      "city",
       "state",
       "zip",
       "firstname",
@@ -145,8 +147,27 @@ export default {
       tableHeader,
       fieldName: districtFieldNames[i],
     }));
-    let schoolTableHeaders = ['ESDCode', 'ESDName', 'LEACode', 'LEAName', 'SchoolCode', 'SchoolName', 'LowestGrade', 'HighestGrade', 'AddressLine1',
-            'AddressLine2', 'City', 'State', 'ZipCode', 'PrincipalName', 'Email', 'Phone', 'OrgCategoryList', 'AYPCode', 'GradeCategory'];
+    let schoolTableHeaders = [
+      "ESD Code",
+      "ESD Name",
+      "District Code",
+      "District Name",
+      "School Code",
+      "School Name",
+      "Lowest Grade",
+      "Highest Grade",
+      "Address Line 1",
+      "Address Line 2",
+      "City",
+      "State",
+      "Zipcode",
+      "Principal Name",
+      "Email",
+      "Phone",
+      "School Categories",
+      "AYP Code",
+      "Grade Category",
+    ];
     let schoolFieldNames = [
       "esd_code",
       "esd_name",
@@ -166,7 +187,7 @@ export default {
       "email",
       "school_categories",
       "ayp_code",
-      "grade_category"
+      "grade_category",
     ];
     let schoolFields = schoolTableHeaders.map((tableHeader, i) => ({
       tableHeader,
@@ -178,19 +199,10 @@ export default {
       currentRecord: null,
       recordList: null,
       fields: null,
-      tableHeaders: null,
-      esdList: null,
       modalActive: false,
-      fieldNames: null,
-      esdTableHeaders: esdTableHeaders,
-      esdFieldNames: esdFieldNames,
       esdFields: esdFields,
-      districtTableHeaders: districtTableHeaders,
-      districtFieldNames: districtFieldNames,
       districtFields: districtFields,
-      schoolTableHeaders: schoolTableHeaders,
-      schoolFieldNames: schoolFieldNames,
-      schoolFields: schoolFields
+      schoolFields: schoolFields,
     };
   },
   methods: {
@@ -198,70 +210,26 @@ export default {
       this.currentReport = reportType;
 
       if (reportType == "esd") {
-        this.getAllESDs();
         this.fields = this.esdFields;
-        this.tableHeaders = this.esdTableHeaders;
-        this.fieldNames = this.esdFieldNames;
       } else if (reportType == "district") {
-        this.getAllDistricts();
-        this.fields = this.districtTableFields;
-        this.tableHeaders = this.districtTableHeaders;
-        this.fieldNames = this.districtFieldNames;
+        this.fields = this.districtFields;
       } else {
-        this.getAllSchools();
-        this.fields = this.schoolTableFields;
-        this.tableHeaders = this.schoolTableHeaders;
-        this.fieldNames = this.schoolFieldNames;
+        this.fields = this.schoolFields;
       }
+      this.getAll(reportType);
     },
-    getAllSchools() {
-      const path = "http://localhost:80/all_schools";
+    getAll(tableName) {
+      const path = "http://localhost:80/all_" + tableName + "s";
+      this.recordList = null;
       axios
         .get(path)
         .then((res) => {
           console.log(res.data);
           if (res.data.length == 0) {
-            this.schoolList = null;
             this.recordList = null;
           } else {
-            this.schoolList = res.data;
-            this.recordList = this.schoolList;
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    },
-    getAllESDs() {
-      const path = "http://localhost:80/all_ESDs";
-      axios
-        .get(path)
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.length == 0) {
-            this.esdList = null;
             this.recordList = null;
-          } else {
-            this.esdList = res.data;
-            this.recordList = this.esdList;
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    },
-    getAllDistricts() {
-      const path = "http://localhost:80/all_districts";
-      axios
-        .get(path)
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.length == 0) {
-            this.districtList = null;
-            this.recordList = null;
-          } else {
-            this.districtList = res.data;
-            this.recordList = this.districtList;
+            this.recordList = res.data;
           }
         })
         .catch((err) => {
@@ -274,7 +242,7 @@ export default {
         .delete(path)
         .then((res) => {
           console.log(res.data);
-          this.getAllESDs();
+          this.getAll(this.currentReport);
         })
         .catch((err) => {
           console.error(err);
@@ -297,9 +265,9 @@ export default {
         });
     },
   },
-  mounted(){
-    this.updateReportType('district');
-  }
+  mounted() {
+    this.updateReportType("district");
+  },
 };
 </script>
 
@@ -331,11 +299,52 @@ p {
   font-size: 18px;
 }
 .radio-group {
+  border-top: 1px black solid;
+  border-bottom: 1px black solid;
+  background-color: #009879;
   display: flex;
+  font-weight: bold;
+  color: white;
 }
-table th td tbody{ 
-  font-size: 10px; 
-  
+table {
+  border-collapse: collapse;
+  min-width: 100%;
 }
-
+table,
+th,
+td {
+  font-size: 0.7vw;
+}
+th {
+  background-color: #009879;
+  color: #ffff;
+  position: sticky;
+  top: 0;
+  text-align: left;
+  font-weight: bold;
+}
+th,
+td {
+  padding: 12px 15px;
+}
+tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+tbody tr:nth-of-type(odd) {
+  background-color: #ffff;
+}
+input[type="radio"],
+label,
+p {
+  vertical-align: baseline;
+  padding: 10px;
+  margin: 10px;
+}
+#container {
+  display: inline-block;
+  min-width: 100%;
+}
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <form @submit.prevent="uploadFile()" id="message">
       <label for="file">Upload a CSV file:</label>
       <input type="file" id="file" name="file" ref="file" />
@@ -114,5 +114,8 @@ label {
 #message {
   display: block;
   padding: 5px;
+}
+.container {
+  background-color: white;
 }
 </style>
