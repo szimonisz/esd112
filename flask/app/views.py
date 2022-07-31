@@ -69,17 +69,14 @@ def upload():
                 # check if record already exists in database
                 # so we don't upload duplicates
                 if report_type == 'esd':
-                    exists = db.session.get(ESD, row['ESD Code']) is not None
-                elif report_type == 'school':
-                    exists = db.session.get(
-                        School, row['SchoolCode']) is not None
+                    esd = db.session.get(ESD, row['ESD Code'])
                 elif report_type == 'district':
-                    exists = db.session.get(
-                        District, row['DistrictCode']) is not None
+                    district = db.session.get(District, row['DistrictCode'])
+                else:
+                    school = db.session.get(School, row['SchoolCode'])
 
                 if report_type == 'esd':
-                    if exists:
-                        esd = db.session.get(ESD, row['ESD Code'])
+                    if esd:
                         if esd.address_id is None:
                             address = Address(
                                 line_one=row['AddressLine1'],
@@ -90,7 +87,6 @@ def upload():
                             db.session.add(address)
                             db.session.flush()
                             esd.address_id = address.id
-                            db.session.commit()
 
                         if esd.administrator_id is None:
                             admin = Administrator(
@@ -103,7 +99,6 @@ def upload():
                             db.session.add(admin)
                             db.session.flush()
                             esd.administrator_id = admin.id
-                            db.session.commit()
                     else:
                         address = Address(
                             line_one=row['AddressLine1'],
@@ -128,11 +123,9 @@ def upload():
                             administrator_id=admin.id
                         )
                         db.session.add(esd)
-                        db.session.commit()
 
                 if report_type == 'district':
-                    if exists:
-                        district = db.session.get(District, row['DistrictCode'])
+                    if district:
                         if district.address_id is None:
                             address = Address(
                                 line_one=row['AddressLine1'],
@@ -143,7 +136,6 @@ def upload():
                             db.session.add(address)
                             db.session.flush()
                             district.address_id = address.id
-                            db.session.commit()
 
                         if district.administrator_id is None:
                             admin = Administrator(
@@ -156,7 +148,6 @@ def upload():
                             db.session.add(admin)
                             db.session.flush()
                             district.administrator_id = admin.id
-                            db.session.commit()
 
                         if district.esd_code is None:
                             esd = db.session.get(ESD, row['ESDCode'])
@@ -166,12 +157,7 @@ def upload():
                                     name=row['ESDName'],
                                 )
                                 db.session.add(esd)
-                                db.session.flush()
-                                district.esd_code = esd.code
-                                db.session.commit()
-                            else:
-                                district.esd_code = row['ESDCode']
-                                db.session.commit()
+                            district.esd_code = row['ESDCode']
                     else:
                         admin = Administrator(
                             firstname=row['AdministratorName'],
@@ -188,39 +174,74 @@ def upload():
                         )
                         db.session.add(admin)
                         db.session.add(address)
-                        db.session.commit()
+                        db.session.flush()
+
                         esd = db.session.query(ESD).filter(
                             ESD.code == row['ESDCode']).first()
+
                         if esd is None:
                             esd = ESD(
                                 code=row['ESDCode'],
                                 name=row['ESDName'],
                             )
                             db.session.add(esd)
-                            db.session.commit()
 
-                            district = District(
-                                code=row['DistrictCode'],
-                                name=row['DistrictName'],
-                                address_id=address.id,
-                                administrator_id=admin.id,
-                                esd_code=esd.code
-                            )
-                            db.session.add(district)
-                            db.session.commit()
-                        else:
-                            district = District(
-                                code=row['DistrictCode'],
-                                name=row['DistrictName'],
-                                address_id=address.id,
-                                administrator_id=admin.id,
-                                esd_code=esd.code
-                            )
-                            db.session.add(district)
-                            db.session.commit()
+                        district = District(
+                            code=row['DistrictCode'],
+                            name=row['DistrictName'],
+                            address_id=address.id,
+                            administrator_id=admin.id,
+                            esd_code=['ESDCode']
+                        )
+                        db.session.add(district)
+
                 if report_type == 'school':
-                    if exists:
-                        continue
+                    if school:
+                        if school.address_id is None:
+                            address = Address(
+                                line_one=row['AddressLine1'],
+                                line_two=row['AddressLine2'],
+                                state=row['State'],
+                                zip=row['Zipcode']
+                            )
+                            db.session.add(address)
+                            db.session.flush()
+                            school.address_id = address.id
+
+                        if school.administrator_id is None:
+                            admin = Administrator(
+                                firstname=row['AdministratorName'],
+                                middlename=row['AdministratorName'],
+                                lastname=row['AdministratorName'],
+                                email=row['Email'],
+                                phone_number=row['Phone']
+                            )
+                            db.session.add(admin)
+                            db.session.flush()
+                            school.administrator_id = admin.id
+
+                        district = db.session.get(District, row['LEACode'])
+                        if school.district_code is None:
+                            school.district_code = row['LEACode']
+
+                            if district is None:
+                                district = District(
+                                    code=row['LEACode'],
+                                    name=row['LEAName'],
+                                    esd_code=row['ESDCode']
+                                )
+                                db.session.add(district)
+
+                        if district.esd_code is None:
+                            district.esd_code = row['ESDCode']
+
+                        esd = db.session.get(ESD, row['ESDCode'])
+                        if esd is None:
+                            esd = ESD(
+                                code=row['ESDCode'],
+                                name=row['ESDName'],
+                            )
+                            db.session.add(esd)
                     else:
                         admin = Administrator(
                             firstname=row['PrincipalName'],
@@ -238,10 +259,10 @@ def upload():
                         db.session.add(admin)
                         db.session.add(address)
                         db.session.flush()
-                        esd = db.session.query(ESD).filter(
-                            ESD.code == row['ESDCode']).first()
-                        district = db.session.query(District).filter(
-                            District.code == row['LEACode']).first()
+
+                        esd = db.session.get(ESD, row['ESDCode'])
+                        district = db.session.get(District, row['LEACode'])
+
                         if esd is None:
                             esd = ESD(
                                 code=row['ESDCode'],
@@ -249,62 +270,32 @@ def upload():
                             )
                             db.session.add(esd)
 
-                            if district is None:
-                                district = District(
-                                    code=row['LEACode'],
-                                    name=row['LEAName'],
-                                    esd_code=esd.code
-                                )
-                                db.session.add(district)
-
-                            school = School(
-                                code=row['SchoolCode'],
-                                name=row['SchoolName'],
-                                ayp_code=row['AYPCode'],
-                                district_code=row['LEACode'],
-                                address_id=address.id,
-                                administrator_id=admin.id
-                            )
-                            db.session.add(school)
-                            db.session.flush()
-                        elif district is None:
+                        if district is None:
                             district = District(
                                 code=row['LEACode'],
                                 name=row['LEAName'],
-                                esd_code=esd.code
-                            )
-
-                            school = School(
-                                code=row['SchoolCode'],
-                                name=row['SchoolName'],
-                                ayp_code=row['AYPCode'],
-                                district_code=row['LEACode'],
-                                address_id=address.id,
-                                administrator_id=admin.id
+                                esd_code=row['ESDCode']
                             )
                             db.session.add(district)
-                            db.session.add(school)
-                            db.session.flush()
-                        else:
-                            school = School(
-                                code=row['SchoolCode'],
-                                name=row['SchoolName'],
-                                ayp_code=row['AYPCode'],
-                                district_code=row['LEACode'],
-                                address_id=address.id,
-                                administrator_id=admin.id
-                            )
-                            db.session.add(school)
-                            db.session.flush()
-                        
-    db.session.commit()
+
+                        school = School(
+                            code=row['SchoolCode'],
+                            name=row['SchoolName'],
+                            ayp_code=row['AYPCode'],
+                            district_code=row['LEACode'],
+                            address_id=address.id,
+                            administrator_id=admin.id
+                        )
+                        db.session.add(school)
+                db.session.flush()
+        db.session.commit()
 
     file_uploads = FileUpload.query.all()
     file_uploads_list = []
     for item in file_uploads:
         file_uploads_list.append(item.to_dict())
 
-    #return jsonify(file_uploads_list)
+    # return jsonify(file_uploads_list)
     print("finished")
     return "success!"
 
