@@ -36,16 +36,18 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
-    background-color:rgba(255,255,255,0.7)
+    background-color:rgba(255,255,255,0.7);
+    z-index: 999;
 }
 .modal-inner {
     position: relative;
-    max-width: 640px;
-    width: 80%;
-    padding: 64px 16px;
+    max-width: 920px;
+    width: 90%;
+    height: 90%;
     box-shadow: 5px 10px #888888;
     background-color: #fff;
     border: 1px solid;
+    overflow:scroll;
 }
 
 </style>
