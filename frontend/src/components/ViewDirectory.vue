@@ -5,28 +5,21 @@
       :modalActive="modalActive"
     >
       <div class="modal-content">
-        <div id="edit-header">
-          <h1>Edit a Record: {{ currentReport }}</h1>
-        </div>
-        <div id="form-container">
-          <form id="edit-record" name="editRecord">
-            <ul>
-              <li v-for="field in this.fields" :key="field.fieldName">
-                <div id="input-container">
-                  <label :for="field.fieldname">
-                    {{ field.tableHeader }}
-                  </label>
-                  <input
-                    type="text"
-                    :id="field.fieldName"
-                    :name="field.fieldName"
-                    :value="currentRecord ? currentRecord[field.fieldName] : ''"
-                  />
-                </div>
-              </li>
-            </ul>
-          </form>
-        </div>
+        <h1>Modal Header</h1>
+        <p>Modal Message</p>
+        <form name="editRecord">
+          <div v-for="field in this.fields" :key="field.fieldName">
+            <label :for="field.fieldname">
+              {{ field.tableHeader }}
+            </label>
+            <input
+              type="text"
+              :id="field.fieldName"
+              :name="field.fieldName"
+              :value="currentRecord ? currentRecord[field.fieldName] : ''"
+            />
+          </div>
+        </form>
       </div>
     </Modal>
     <div class="radio-group">
@@ -206,8 +199,7 @@ export default {
       currentRecord: null,
       recordList: null,
       fields: null,
-      //modalActive: false,
-      modalActive: true,
+      modalActive: false,
       esdFields: esdFields,
       districtFields: districtFields,
       schoolFields: schoolFields,
@@ -280,37 +272,21 @@ export default {
 </script>
 
 <style>
-#input-container{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
+label {
+  display: block;
+  padding-bottom: 10px;
 }
-#edit-header {
-  text-align: center;
+#file {
+  display: block;
+  padding-bottom: 10px;
 }
-ul {
-  width: 100%;
-}
-li {
-  width: 49%;
-  display: inline-block;
-}
-#input-container label {
-  width: 110px;
-  font-size: 12px;
-}
-input[type="text"],
-select {
-  border: 1px solid #ccc;
-  padding: 5px 10px;
-  border-radius: 4px;
-  box-sizing: border-box;
+#message {
+  display: block;
+  padding: 5px;
 }
 .modal-content {
   display: flex;
   flex-direction: column;
-  align-content: center;
 }
 .modal-content > h1,
 p {
