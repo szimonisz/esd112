@@ -162,8 +162,8 @@ export default {
       "State",
       "Zipcode",
       "Principal Name",
-      "Email",
       "Phone",
+      "Email",
       "School Categories",
       "AYP Code",
       "Grade Category",
@@ -313,7 +313,8 @@ table {
 table,
 th,
 td {
-  font-size: 0.7vw;
+  /*font-size: 0.7vw;*/
+  font-size: 10px;
 }
 th {
   background-color: #009879;
