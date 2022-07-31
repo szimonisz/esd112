@@ -5,10 +5,9 @@
       :modalActive="modalActive"
     >
       <div class="modal-content">
-        <h1>Modal Header</h1>
-        <p>Modal Message</p>
-        <form name="editRecord">
-          <div v-for="field in this.fields" :key="field.fieldName">
+        <h1>Edit a Record:</h1>
+        <form name="editRecord" id="edit-record">
+          <div v-for="(field,index) in this.fields" :key="field.fieldName" :class="[(index % 2 == 0) ? 'col1' : 'col2']">
             <label :for="field.fieldname">
               {{ field.tableHeader }}
             </label>
@@ -20,6 +19,7 @@
             />
           </div>
         </form>
+        <button type="submit">Submit</button>
       </div>
     </Modal>
     <div class="radio-group">
@@ -66,7 +66,7 @@
               {{ item[field.fieldName] }}
             </td>
             <td>
-              <button class="edit-record" @click="editRecord(item.code)">
+              <button @click="editRecord(item.code)">
                 Edit
               </button>
               <button class="delete-record" @click="deleteRecord(item.code)">
@@ -199,7 +199,8 @@ export default {
       currentRecord: null,
       recordList: null,
       fields: null,
-      modalActive: false,
+      //modalActive: false,
+      modalActive: true,
       esdFields: esdFields,
       districtFields: districtFields,
       schoolFields: schoolFields,
@@ -272,32 +273,6 @@ export default {
 </script>
 
 <style>
-label {
-  display: block;
-  padding-bottom: 10px;
-}
-#file {
-  display: block;
-  padding-bottom: 10px;
-}
-#message {
-  display: block;
-  padding: 5px;
-}
-.modal-content {
-  display: flex;
-  flex-direction: column;
-}
-.modal-content > h1,
-p {
-  margin-bottom: 16px;
-}
-.modal-content > h1 {
-  font-size: 32px;
-}
-.modal-content > p {
-  font-size: 18px;
-}
 .radio-group {
   border-top: 1px black solid;
   border-bottom: 1px black solid;
@@ -313,7 +288,6 @@ table {
 table,
 th,
 td {
-  /*font-size: 0.7vw;*/
   font-size: 10px;
 }
 th {
@@ -337,9 +311,9 @@ tbody tr:nth-of-type(even) {
 tbody tr:nth-of-type(odd) {
   background-color: #ffff;
 }
-input[type="radio"],
-label,
-p {
+.radio-group input[type="radio"],
+.radio-group label,
+.radio-group p {
   vertical-align: baseline;
   padding: 10px;
   margin: 10px;
@@ -347,5 +321,31 @@ p {
 #container {
   display: inline-block;
   min-width: 100%;
+}
+.modal-content label {
+  padding-bottom: 10px;
+}
+.modal-content {
+}
+#edit-record {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+#edit-record label {
+  display: inline-block;
+  width: 110px;
+}
+#edit-record input {
+  padding: 5px 10px;
+}
+#edit-record div {
+  padding-bottom: 20px;
+  margin-bottom: 10px;
+}
+.col1 {
+  grid-column: 1 / 2;
+}
+.col2 {
+  grid-column: 2 / 3;
 }
 </style>
