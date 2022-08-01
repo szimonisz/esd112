@@ -360,20 +360,12 @@ def all_school_categories():
     return jsonify(school_category_list)
     
 @app.route('/all_grade_categorys',methods=['GET'])
-def all_grade_categorys():
+def all_grade_categories():
     grade_categories = db.session.query(GradeCategory).all()
     grade_category_list = []
     for grade_category in grade_categories:
         grade_category_list.append(grade_category.to_dict())
     return jsonify(grade_category_list)
-
-@app.route('/all_esd/codes', methods=['GET'])
-def all_esd_codes():
-    esds = db.session.query(ESD).all()
-    esd_list = []
-    for esd in esds:
-        esd_list.append(esd.code)
-    return jsonify(esd_list)
 
 
 @app.route('/all_districts', methods=['GET'])
@@ -471,13 +463,15 @@ def delete_upload(id):
 
 @app.route("/esd/<id>", methods=['GET'])
 def esd(id):
-    query = db.session.query(ESD, Address, Administrator).join(Address, ESD.address_id == Address.id).join(
+    query = db.session.query(ESD, Address, Administrator).outerjoin(Address, ESD.address_id == Address.id).outerjoin(
         Administrator, ESD.administrator_id == Administrator.id).filter(ESD.code == id)
     esd_dict = {}
     for esd, address, admin in query:
         esd_dict.update(esd.to_dict())
-        esd_dict.update(address.to_dict())
-        esd_dict.update(admin.to_dict())
+        if address:
+            esd_dict.update(address.to_dict())
+        if admin:
+            esd_dict.update(admin.to_dict())
     return jsonify(esd_dict)
 
 @app.route("/district/<id>", methods=['GET'])

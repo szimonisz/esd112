@@ -27,9 +27,7 @@
                 v-for="esd in esds"
                 :key="esd.code"
                 :value="esd.code"
-                :selected="
-                  currentRecord && esd.code == currentRecord[field.fieldName]
-                "
+                :selected="currentRecord && esd.code == currentRecord.esd_code"
               >
                 {{ esd.code }}
               </option>
@@ -47,7 +45,7 @@
                 newESDName
                   ? newESDName
                   : currentRecord
-                  ? currentRecord[field.fieldName]
+                  ? currentRecord.esd_code
                   : ''
               "
               disabled
@@ -61,6 +59,7 @@
             >
               <input
                 v-if="
+                  currentRecord &&
                   currentRecord.school_categories.includes(
                     currentRecord.school_categories.find(
                       (el) => el.id === school_category.id
@@ -87,7 +86,7 @@
                 newESDName
                   ? newESDName
                   : currentRecord
-                  ? currentRecord[field.fieldName]
+                  ? currentRecord.esd_name
                   : ''
               "
               disabled
@@ -103,8 +102,7 @@
                 :key="district.code"
                 :value="district.code"
                 :selected="
-                  currentRecord &&
-                  district.code == currentRecord[field.fieldName]
+                  currentRecord && district.code == currentRecord.district_code
                 "
               >
                 {{ district.code }}
@@ -121,7 +119,7 @@
                 newDistrictName
                   ? newDistrictName
                   : currentRecord
-                  ? currentRecord[field.fieldName]
+                  ? currentRecord.district_name
                   : ''
               "
               disabled
@@ -135,15 +133,13 @@
                 newESDName
                   ? newESDName
                   : currentRecord
-                  ? currentRecord[field.fieldName]
+                  ? currentRecord.code
                   : ''
               "
               disabled
             />
             <select
-              v-else-if="
-                field.fieldName == 'grade_category' 
-              "
+              v-else-if="field.fieldName == 'grade_category'"
               :id="field.fieldName"
               :name="field.fieldName"
             >
@@ -152,12 +148,13 @@
                 :key="gradeCategory.id"
                 :value="gradeCategory.id"
                 :selected="
-                  currentRecord && gradeCategory.id == currentRecord.grade_category_id
+                  currentRecord &&
+                  gradeCategory.id == currentRecord.grade_category_id
                 "
               >
                 {{ gradeCategory.title }}
               </option>
-              </select>
+            </select>
 
             <input
               v-else
@@ -236,6 +233,17 @@ export default {
     Modal,
   },
   data() {
+    let esdFields = [
+      { tableHeader: "ESD Code", fieldName: "code" },
+      { tableHeader: "ESD Name", fieldName: "name" },
+      { tableHeader: "Address Line 1", fieldName: "line_one" },
+      { tableHeader: "Address Line 2", fieldName: "line_two" },
+      { tableHeader: "State", fieldName: "state" },
+      { tableHeader: "Zipcode", fieldName: "zip" },
+      { tableHeader: "Administrator Name", fieldName: "firstname" },
+      { tableHeader: "Phone", fieldName: "phone_number" },
+      { tableHeader: "Email", fieldName: "email" },
+    ];
     let esdTableHeaders = [
       "ESD Code",
       "ESD Name",
@@ -258,7 +266,7 @@ export default {
       "phone_number",
       "email",
     ];
-    let esdFields = esdTableHeaders.map((tableHeader, i) => ({
+    let esdFields2 = esdTableHeaders.map((tableHeader, i) => ({
       tableHeader,
       fieldName: esdFieldNames[i],
     }));
@@ -336,32 +344,10 @@ export default {
       "ayp_code",
       "grade_category",
     ];
-    let schoolInputTypes = [
-      "select",
-      "select",
-      "select",
-      "select",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-      "text",
-    ];
 
     let schoolFields = schoolTableHeaders.map((tableHeader, i) => ({
       tableHeader,
       fieldName: schoolFieldNames[i],
-      inputType: schoolInputTypes[i],
     }));
 
     return {
@@ -369,8 +355,8 @@ export default {
       currentRecord: null,
       recordList: null,
       fields: null,
-      //modalActive: false,
-      modalActive: true,
+      modalActive: false,
+      //modalActive: true,
       esdFields: esdFields,
       districtFields: districtFields,
       schoolFields: schoolFields,
@@ -380,6 +366,7 @@ export default {
       gradeCategories: [],
       newESDName: null,
       newDistrictName: null,
+      esdFields2: esdFields2
     };
   },
   methods: {
@@ -400,6 +387,7 @@ export default {
       }
     },
     updateReportType(reportType) {
+      this.currentRecord = null;
       this.currentReport = reportType;
 
       if (reportType == "esd") {
