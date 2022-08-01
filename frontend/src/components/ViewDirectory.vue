@@ -3,180 +3,14 @@
     <Modal
       @closeButtonClicked="this.modalActive = false"
       :modalActive="modalActive"
+      :currentReport="currentReport"
+      :currentRecord="currentRecord"
+      :fields="fields"
+      :esds="esds"
+      :districts="districts"
+      :schoolCategories="schoolCategories"
+      :gradeCategories="gradeCategories"
     >
-      <div class="modal-content">
-        <h1>{{ currentReport }}</h1>
-        <h3>Edit a Record:</h3>
-        <form name="editRecord" id="edit-record">
-          <div
-            v-for="(field, index) in this.fields"
-            :key="index"
-            :class="[index % 2 == 0 ? 'col1' : 'col2']"
-          >
-            <label :for="field.fieldName">
-              {{ field.tableHeader }}
-            </label>
-            <select
-              v-if="
-                field.fieldName == 'esd_code' && currentReport == 'district'
-              "
-              :id="field.fieldName"
-              :name="field.fieldName"
-              @change="updateESDCode($event)"
-            >
-              <option
-                v-for="esd in esds"
-                :key="esd.code"
-                :value="esd.code"
-                :selected="currentRecord && esd.code == currentRecord.esd_code"
-              >
-                {{ esd.code }}
-              </option>
-            </select>
-            <input
-              v-else-if="
-                field.fieldName == 'esd_code' &&
-                esds.length > 0 &&
-                currentReport == 'school'
-              "
-              type="text"
-              :id="field.fieldName"
-              :name="field.fieldName"
-              :value="
-                newESDName
-                  ? newESDName
-                  : currentRecord
-                  ? currentRecord.esd_code
-                  : ''
-              "
-              disabled
-            />
-            <div
-              v-else-if="
-                field.fieldName == 'school_categories' && currentRecord
-              "
-              class="school-category-selection"
-            >
-              <div
-                v-for="schoolCategory in schoolCategories"
-                :key="schoolCategory.id"
-              >
-                <input
-                  v-if="
-                    currentRecord &&
-                    currentRecord.school_categories.includes(
-                      currentRecord.school_categories.find(
-                        (el) => el.id === schoolCategory.id
-                      )
-                    )
-                  "
-                  :key="schoolCategory.id"
-                  :id="schoolCategory.id"
-                  type="checkbox"
-                  checked
-                />
-                <input
-                  v-else
-                  :name="schoolCategory.id"
-                  type="checkbox"
-                  :id="schoolCategory.id"
-                />
-                <label :for="schoolCategory.id">{{
-                  schoolCategory.title
-                }}</label>
-              </div>
-            </div>
-
-            <input
-              v-else-if="field.fieldName == 'esd_name' && esds.length > 0"
-              type="text"
-              :id="field.fieldName"
-              :name="field.fieldName"
-              :value="
-                newESDName
-                  ? newESDName
-                  : currentRecord
-                  ? currentRecord.esd_name
-                  : ''
-              "
-              disabled
-            />
-            <select
-              v-else-if="field.fieldName == 'district_code'"
-              :id="field.fieldName"
-              :name="field.fieldName"
-              @change="updateDistrictCode($event)"
-            >
-              <option
-                v-for="district in districts"
-                :key="district.code"
-                :value="district.code"
-                :selected="
-                  currentRecord && district.code == currentRecord.district_code
-                "
-              >
-                {{ district.code }}
-              </option>
-            </select>
-            <input
-              v-else-if="
-                field.fieldName == 'district_name' && districts.length > 0
-              "
-              type="text"
-              :id="field.fieldName"
-              :name="field.fieldName"
-              :value="
-                newDistrictName
-                  ? newDistrictName
-                  : currentRecord
-                  ? currentRecord.district_name
-                  : ''
-              "
-              disabled
-            />
-            <input
-              v-else-if="field.fieldName == 'code'"
-              type="text"
-              :id="field.fieldName"
-              :name="field.fieldName"
-              :value="
-                newESDName
-                  ? newESDName
-                  : currentRecord
-                  ? currentRecord.code
-                  : ''
-              "
-              disabled
-            />
-            <select
-              v-else-if="field.fieldName == 'grade_category'"
-              :id="field.fieldName"
-              :name="field.fieldName"
-            >
-              <option
-                v-for="gradeCategory in gradeCategories"
-                :key="gradeCategory.id"
-                :value="gradeCategory.id"
-                :selected="
-                  currentRecord &&
-                  gradeCategory.id == currentRecord.grade_category_id
-                "
-              >
-                {{ gradeCategory.title }}
-              </option>
-            </select>
-
-            <input
-              v-else
-              type="text"
-              :id="field.fieldName"
-              :name="field.fieldName"
-              :value="currentRecord ? currentRecord[field.fieldName] : ''"
-            />
-          </div>
-        </form>
-        <button type="submit" @click="submitRecordUpdate(currentRecord.code)" id="submit-button">Submit</button>
-      </div>
     </Modal>
     <div class="radio-group">
       <p>Report Type:</p>
@@ -282,7 +116,7 @@ export default {
       { tableHeader: "School Code", fieldName: "code" },
       { tableHeader: "School Name", fieldName: "name" },
       { tableHeader: "Lowest Grade", fieldName: "lowest_grade" },
-      { tableHeader: "Highest Grade", fieldName: "lowest_grade" },
+      { tableHeader: "Highest Grade", fieldName: "highest_grade" },
       { tableHeader: "Address Line 1", fieldName: "line_one" },
       { tableHeader: "Address Line 2", fieldName: "line_two" },
       { tableHeader: "City", fieldName: "city" },
@@ -309,27 +143,9 @@ export default {
       districts: [],
       schoolCategories: [],
       gradeCategories: [],
-      newESDName: null,
-      newDistrictName: null,
     };
   },
   methods: {
-    updateDistrictCode(event) {
-      let code = event.target.value;
-      for (let district of this.districts) {
-        if (district.code == code) {
-          this.newDistrictName = district.name;
-        }
-      }
-    },
-    updateESDCode(event) {
-      let code = event.target.value;
-      for (let esd of this.esds) {
-        if (esd.code == code) {
-          this.newESDName = esd.name;
-        }
-      }
-    },
     updateReportType(reportType) {
       this.currentRecord = null;
       this.currentReport = reportType;
