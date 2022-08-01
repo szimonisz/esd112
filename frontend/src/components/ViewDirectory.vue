@@ -5,11 +5,12 @@
       :modalActive="modalActive"
     >
       <div class="modal-content">
-        <h1>Edit a Record:</h1>
+        <h1>{{ currentReport }}</h1>
+        <h3>Edit a Record:</h3>
         <form name="editRecord" id="edit-record">
           <div
             v-for="(field, index) in this.fields"
-            :key="field.fieldName"
+            :key="index"
             :class="[index % 2 == 0 ? 'col1' : 'col2']"
           >
             <label :for="field.fieldName">
@@ -54,27 +55,36 @@
               v-else-if="
                 field.fieldName == 'school_categories' && currentRecord
               "
-              v-for="school_category in school_categories"
-              :key="school_category.id"
+              class="school-category-selection"
             >
-              <input
-                v-if="
-                  currentRecord &&
-                  currentRecord.school_categories.includes(
-                    currentRecord.school_categories.find(
-                      (el) => el.id === school_category.id
-                    )
-                  )
-                "
+              <div
+                v-for="school_category in school_categories"
                 :key="school_category.id"
-                :name="school_category.id"
-                type="checkbox"
-                checked
-              />
-              <input v-else :name="school_category.id" type="checkbox" />
-              <label for="school_category.id">{{
-                school_category.title
-              }}</label>
+              >
+                <input
+                  v-if="
+                    currentRecord &&
+                    currentRecord.school_categories.includes(
+                      currentRecord.school_categories.find(
+                        (el) => el.id === school_category.id
+                      )
+                    )
+                  "
+                  :key="school_category.id"
+                  :id="school_category.id"
+                  type="checkbox"
+                  checked
+                />
+                <input
+                  v-else
+                  :name="school_category.id"
+                  type="checkbox"
+                  :id="school_category.id"
+                />
+                <label :for="school_category.id">{{
+                  school_category.title
+                }}</label>
+              </div>
             </div>
 
             <input
@@ -165,7 +175,7 @@
             />
           </div>
         </form>
-        <button type="submit">Submit</button>
+        <button type="submit" @click="submitRecordUpdate(currentRecord.code)" id="submit-button">Submit</button>
       </div>
     </Modal>
     <div class="radio-group">
@@ -209,7 +219,13 @@
         <tbody>
           <tr v-for="(item, index) in recordList" :key="index">
             <td v-for="field in fields" :key="field.value">
-              {{ item[field.fieldName] }}
+              {{
+                field.fieldName == "school_categories"
+                  ? item.school_categories
+                      .map((value) => value.title)
+                      .join(",\n")
+                  : item[field.fieldName]
+              }}
             </td>
             <td>
               <button @click="editRecord(item.code)">Edit</button>
@@ -244,111 +260,41 @@ export default {
       { tableHeader: "Phone", fieldName: "phone_number" },
       { tableHeader: "Email", fieldName: "email" },
     ];
-    let esdTableHeaders = [
-      "ESD Code",
-      "ESD Name",
-      "Address Line 1",
-      "Address Line 2",
-      "State",
-      "Zipcode",
-      "Administrator Name",
-      "Phone",
-      "Email",
+    let districtFields = [
+      { tableHeader: "ESD Code", fieldName: "esd_code" },
+      { tableHeader: "ESD Name", fieldName: "esd_name" },
+      { tableHeader: "District Code", fieldName: "code" },
+      { tableHeader: "District Name", fieldName: "name" },
+      { tableHeader: "Address Line 1", fieldName: "line_one" },
+      { tableHeader: "Address Line 2", fieldName: "line_two" },
+      { tableHeader: "City", fieldName: "city" },
+      { tableHeader: "State", fieldName: "state" },
+      { tableHeader: "Zipcode", fieldName: "zip" },
+      { tableHeader: "Administrator Name", fieldName: "firstname" },
+      { tableHeader: "Phone", fieldName: "phone_number" },
+      { tableHeader: "Email", fieldName: "email" },
     ];
-    let esdFieldNames = [
-      "code",
-      "name",
-      "line_one",
-      "line_two",
-      "state",
-      "zip",
-      "firstname",
-      "phone_number",
-      "email",
+    let schoolFields = [
+      { tableHeader: "ESD Code", fieldName: "esd_code" },
+      { tableHeader: "ESD Name", fieldName: "esd_name" },
+      { tableHeader: "District Code", fieldName: "district_code" },
+      { tableHeader: "District Name", fieldName: "district_name" },
+      { tableHeader: "School Code", fieldName: "code" },
+      { tableHeader: "School Name", fieldName: "name" },
+      { tableHeader: "Lowest Grade", fieldName: "lowest_grade" },
+      { tableHeader: "Highest Grade", fieldName: "lowest_grade" },
+      { tableHeader: "Address Line 1", fieldName: "line_one" },
+      { tableHeader: "Address Line 2", fieldName: "line_two" },
+      { tableHeader: "City", fieldName: "city" },
+      { tableHeader: "State", fieldName: "state" },
+      { tableHeader: "Zipcode", fieldName: "zip" },
+      { tableHeader: "Principal Name", fieldName: "firstname" },
+      { tableHeader: "Phone", fieldName: "phone_number" },
+      { tableHeader: "Email", fieldName: "email" },
+      { tableHeader: "School Categories", fieldName: "school_categories" },
+      { tableHeader: "AYP Code", fieldName: "ayp_code" },
+      { tableHeader: "Grade Category", fieldName: "grade_category" },
     ];
-    let esdFields2 = esdTableHeaders.map((tableHeader, i) => ({
-      tableHeader,
-      fieldName: esdFieldNames[i],
-    }));
-    let districtTableHeaders = [
-      "ESD Code",
-      "ESD Name",
-      "District Code",
-      "District Name",
-      "Address Line 1",
-      "Address Line 2",
-      "City",
-      "State",
-      "Zipcode",
-      "Administrator Name",
-      "Phone",
-      "Email",
-    ];
-    let districtFieldNames = [
-      "esd_code",
-      "esd_name",
-      "code",
-      "name",
-      "line_one",
-      "line_two",
-      "city",
-      "state",
-      "zip",
-      "firstname",
-      "phone_number",
-      "email",
-    ];
-    let districtFields = districtTableHeaders.map((tableHeader, i) => ({
-      tableHeader,
-      fieldName: districtFieldNames[i],
-    }));
-    let schoolTableHeaders = [
-      "ESD Code",
-      "ESD Name",
-      "District Code",
-      "District Name",
-      "School Code",
-      "School Name",
-      "Lowest Grade",
-      "Highest Grade",
-      "Address Line 1",
-      "Address Line 2",
-      "City",
-      "State",
-      "Zipcode",
-      "Principal Name",
-      "Phone",
-      "Email",
-      "School Categories",
-      "AYP Code",
-      "Grade Category",
-    ];
-    let schoolFieldNames = [
-      "esd_code",
-      "esd_name",
-      "district_code",
-      "district_name",
-      "code",
-      "name",
-      "lowest_grade",
-      "highest_grade",
-      "line_one",
-      "line_two",
-      "city",
-      "state",
-      "zip",
-      "firstname",
-      "phone_number",
-      "email",
-      "school_categories",
-      "ayp_code",
-      "grade_category",
-    ];
-
-    let schoolFields = schoolTableHeaders.map((tableHeader, i) => ({
-      tableHeader,
-      fieldName: schoolFieldNames[i],
-    }));
 
     return {
       currentReport: "district",
@@ -356,7 +302,6 @@ export default {
       recordList: null,
       fields: null,
       modalActive: false,
-      //modalActive: true,
       esdFields: esdFields,
       districtFields: districtFields,
       schoolFields: schoolFields,
@@ -366,7 +311,6 @@ export default {
       gradeCategories: [],
       newESDName: null,
       newDistrictName: null,
-      esdFields2: esdFields2
     };
   },
   methods: {
@@ -462,23 +406,25 @@ export default {
           console.error(err);
         });
     },
-  },
-  computed: {
-    checkedSchoolCategories() {
-      let checkedCategories = [];
-      for (let current_category of this.currentRecord.school_categories) {
-        for (let category of this.school_categories)
-          if (current_category.id == category.id) {
-            checkedCategories.append(current_category);
-          }
-      }
-      return checkedCategories;
-    },
+    submitRecordUpdate(id) {
+      const path = "http://localhost:80/" + this.currentReport + "/" + id;
+      console.log(this.currentRecord);
+      axios
+        .post(
+          path,
+        )
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+
+    }
   },
   mounted() {
     this.updateReportType("district");
     // is mounted the right place for this?
-    //this.getAllCodes("esd");
     this.getAll("esd");
     this.getAll("district");
     this.getAll("school_category");
@@ -489,8 +435,8 @@ export default {
 
 <style>
 .radio-group {
-  border-top: 1px black solid;
-  border-bottom: 1px black solid;
+  border-top: 1px white solid;
+  border-bottom: 1px white solid;
   background-color: #009879;
   display: flex;
   font-weight: bold;
@@ -502,8 +448,9 @@ table {
 }
 table,
 th,
-td {
-  font-size: 10px;
+td,
+button {
+  font-size: 11px;
 }
 th {
   background-color: #009879;
@@ -515,7 +462,7 @@ th {
 }
 th,
 td {
-  padding: 12px 15px;
+  padding: 10px 10px;
 }
 tbody tr {
   border-bottom: 1px solid #dddddd;
@@ -540,27 +487,41 @@ tbody tr:nth-of-type(odd) {
 .modal-content label {
   padding-bottom: 10px;
 }
-.modal-content {
+.modal-content h1 {
+  text-transform: uppercase;
 }
 #edit-record {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  padding: 2px;
 }
 #edit-record label {
   display: inline-block;
   width: 110px;
+  white-space: nowrap;
 }
-#edit-record input {
+#edit-record input select {
   padding: 5px 10px;
 }
 #edit-record div {
+}
+.col1,
+.col2 {
   padding-bottom: 20px;
   margin-bottom: 10px;
 }
 .col1 {
   grid-column: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  padding-right: 5px;
 }
 .col2 {
   grid-column: 2 / 3;
+  display: flex;
+  flex-direction: column;
+}
+.school-category-selection {
+  padding: 0px;
 }
 </style>
