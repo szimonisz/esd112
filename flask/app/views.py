@@ -1,4 +1,5 @@
 from app import app, db
+import re
 import os
 from flask import flash, request, redirect, jsonify
 from werkzeug.utils import secure_filename
@@ -231,16 +232,18 @@ def insert_school(row):
             )
             db.session.add(district)
 
-        school_category_name_list = row['OrgCategoryList'].split("'")
+        #school_category_name_list = row['OrgCategoryList'].split("'")
+        school_category_name_list = re.split("',|,\s?",row['OrgCategoryList'])
         school_category_list = []
         for category_name in school_category_name_list:
             school_category = db.session.query(SchoolCategory).filter(
-                SchoolCategory.title == category_name).first()
+                SchoolCategory.title == category_name.lstrip()).first()
             if school_category is None:
                 school_category = SchoolCategory(
-                    title=category_name
+                    title=category_name.lstrip()
                 )
-            db.session.add(school_category)
+                db.session.add(school_category)
+                db.session.flush()
             school_category_list.append(school_category)
 
         grade_category = db.session.query(GradeCategory).filter(
@@ -348,6 +351,30 @@ def all_esds():
         esd_list.append(esd_dict)
     return jsonify(esd_list)
 
+@app.route('/all_school_categorys',methods=['GET'])
+def all_school_categories():
+    school_categories = db.session.query(SchoolCategory).all()
+    school_category_list = []
+    for school_category in school_categories:
+        school_category_list.append(school_category.to_dict())
+    return jsonify(school_category_list)
+    
+@app.route('/all_grade_categorys',methods=['GET'])
+def all_grade_categorys():
+    grade_categories = db.session.query(GradeCategory).all()
+    grade_category_list = []
+    for grade_category in grade_categories:
+        grade_category_list.append(grade_category.to_dict())
+    return jsonify(grade_category_list)
+
+@app.route('/all_esd/codes', methods=['GET'])
+def all_esd_codes():
+    esds = db.session.query(ESD).all()
+    esd_list = []
+    for esd in esds:
+        esd_list.append(esd.code)
+    return jsonify(esd_list)
+
 
 @app.route('/all_districts', methods=['GET'])
 def all_districts():
@@ -379,12 +406,13 @@ def all_schools():
         school_dict = {}
         school_dict.update(school.to_dict())
 
-        school_category_names = []
+        school_categories= []
         if school.school_categories:
             for school_category in school.school_categories:
-                school_category_names.append(school_category.title)
-            school_dict.update(
-                {'school_categories': ',\n'.join(school_category_names)})
+                school_categories.append(school_category.to_dict())
+                school_dict.update(
+                #{'school_categories': ',\n'.join(school_category_names)})
+                    {'school_categories': school_categories})
 
         if school.district_code:
             district = db.session.query(District).get(school.district_code)
@@ -450,6 +478,43 @@ def esd(id):
         esd_dict.update(esd.to_dict())
         esd_dict.update(address.to_dict())
         esd_dict.update(admin.to_dict())
-    print(esd_dict)
-
     return jsonify(esd_dict)
+
+@app.route("/district/<id>", methods=['GET'])
+def district(id):
+    query = db.session.query(District, Address, Administrator, ESD).outerjoin(Address, District.address_id == Address.id).outerjoin(
+        Administrator, District.administrator_id == Administrator.id).outerjoin(ESD, District.esd_code == ESD.code).filter(District.code == id)
+    district_dict = {}
+    for district, address, admin, esd in query:
+        district_dict.update(district.to_dict())
+        if address:
+            district_dict.update(address.to_dict())
+        if admin:
+            district_dict.update(admin.to_dict())
+        district_dict.update({"esd_name": esd.name})
+    return jsonify(district_dict)
+
+@app.route("/school/<id>", methods=['GET'])
+def school(id):
+    query = db.session.query(School, Address, Administrator, District, GradeCategory, ESD).outerjoin(Address, School.address_id == Address.id).outerjoin(
+        Administrator, School.administrator_id == Administrator.id).outerjoin(District, School.district_code == District.code).outerjoin(GradeCategory, School.grade_category_id == GradeCategory.id).outerjoin(ESD, District.esd_code ==ESD.code).filter(School.code == id)
+    school_dict= {}
+    for school, address, admin, district, gradecategory, esd in query:
+        school_dict.update(school.to_dict())
+        school_dict.update(address.to_dict())
+        school_dict.update(admin.to_dict())
+
+        school_categories= []
+        if school.school_categories:
+            for school_category in school.school_categories:
+                school_categories.append(school_category.to_dict())
+                school_dict.update(
+                    {'school_categories': school_categories})
+        if gradecategory:
+            school_dict.update({"grade_category": gradecategory.title})
+        if district:
+            school_dict.update({"district_name": district.name})
+        if esd:
+            school_dict.update({"esd_code": esd.code})
+            school_dict.update({"esd_name": esd.name})
+    return jsonify(school_dict)

@@ -7,11 +7,160 @@
       <div class="modal-content">
         <h1>Edit a Record:</h1>
         <form name="editRecord" id="edit-record">
-          <div v-for="(field,index) in this.fields" :key="field.fieldName" :class="[(index % 2 == 0) ? 'col1' : 'col2']">
-            <label :for="field.fieldname">
+          <div
+            v-for="(field, index) in this.fields"
+            :key="field.fieldName"
+            :class="[index % 2 == 0 ? 'col1' : 'col2']"
+          >
+            <label :for="field.fieldName">
               {{ field.tableHeader }}
             </label>
+            <select
+              v-if="
+                field.fieldName == 'esd_code' && currentReport == 'district'
+              "
+              :id="field.fieldName"
+              :name="field.fieldName"
+              @change="updateESDCode($event)"
+            >
+              <option
+                v-for="esd in esds"
+                :key="esd.code"
+                :value="esd.code"
+                :selected="
+                  currentRecord && esd.code == currentRecord[field.fieldName]
+                "
+              >
+                {{ esd.code }}
+              </option>
+            </select>
             <input
+              v-else-if="
+                field.fieldName == 'esd_code' &&
+                esds.length > 0 &&
+                currentReport == 'school'
+              "
+              type="text"
+              :id="field.fieldName"
+              :name="field.fieldName"
+              :value="
+                newESDName
+                  ? newESDName
+                  : currentRecord
+                  ? currentRecord[field.fieldName]
+                  : ''
+              "
+              disabled
+            />
+            <div
+              v-else-if="
+                field.fieldName == 'school_categories' && currentRecord
+              "
+              v-for="school_category in school_categories"
+              :key="school_category.id"
+            >
+              <input
+                v-if="
+                  currentRecord.school_categories.includes(
+                    currentRecord.school_categories.find(
+                      (el) => el.id === school_category.id
+                    )
+                  )
+                "
+                :key="school_category.id"
+                :name="school_category.id"
+                type="checkbox"
+                checked
+              />
+              <input v-else :name="school_category.id" type="checkbox" />
+              <label for="school_category.id">{{
+                school_category.title
+              }}</label>
+            </div>
+
+            <input
+              v-else-if="field.fieldName == 'esd_name' && esds.length > 0"
+              type="text"
+              :id="field.fieldName"
+              :name="field.fieldName"
+              :value="
+                newESDName
+                  ? newESDName
+                  : currentRecord
+                  ? currentRecord[field.fieldName]
+                  : ''
+              "
+              disabled
+            />
+            <select
+              v-else-if="field.fieldName == 'district_code'"
+              :id="field.fieldName"
+              :name="field.fieldName"
+              @change="updateDistrictCode($event)"
+            >
+              <option
+                v-for="district in districts"
+                :key="district.code"
+                :value="district.code"
+                :selected="
+                  currentRecord &&
+                  district.code == currentRecord[field.fieldName]
+                "
+              >
+                {{ district.code }}
+              </option>
+            </select>
+            <input
+              v-else-if="
+                field.fieldName == 'district_name' && districts.length > 0
+              "
+              type="text"
+              :id="field.fieldName"
+              :name="field.fieldName"
+              :value="
+                newDistrictName
+                  ? newDistrictName
+                  : currentRecord
+                  ? currentRecord[field.fieldName]
+                  : ''
+              "
+              disabled
+            />
+            <input
+              v-else-if="field.fieldName == 'code'"
+              type="text"
+              :id="field.fieldName"
+              :name="field.fieldName"
+              :value="
+                newESDName
+                  ? newESDName
+                  : currentRecord
+                  ? currentRecord[field.fieldName]
+                  : ''
+              "
+              disabled
+            />
+            <select
+              v-else-if="
+                field.fieldName == 'grade_category' 
+              "
+              :id="field.fieldName"
+              :name="field.fieldName"
+            >
+              <option
+                v-for="gradeCategory in gradeCategories"
+                :key="gradeCategory.id"
+                :value="gradeCategory.id"
+                :selected="
+                  currentRecord && gradeCategory.id == currentRecord.grade_category_id
+                "
+              >
+                {{ gradeCategory.title }}
+              </option>
+              </select>
+
+            <input
+              v-else
               type="text"
               :id="field.fieldName"
               :name="field.fieldName"
@@ -66,9 +215,7 @@
               {{ item[field.fieldName] }}
             </td>
             <td>
-              <button @click="editRecord(item.code)">
-                Edit
-              </button>
+              <button @click="editRecord(item.code)">Edit</button>
               <button class="delete-record" @click="deleteRecord(item.code)">
                 Delete
               </button>
@@ -189,9 +336,32 @@ export default {
       "ayp_code",
       "grade_category",
     ];
+    let schoolInputTypes = [
+      "select",
+      "select",
+      "select",
+      "select",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+      "text",
+    ];
+
     let schoolFields = schoolTableHeaders.map((tableHeader, i) => ({
       tableHeader,
       fieldName: schoolFieldNames[i],
+      inputType: schoolInputTypes[i],
     }));
 
     return {
@@ -204,9 +374,31 @@ export default {
       esdFields: esdFields,
       districtFields: districtFields,
       schoolFields: schoolFields,
+      esds: [],
+      districts: [],
+      school_categories: [],
+      gradeCategories: [],
+      newESDName: null,
+      newDistrictName: null,
     };
   },
   methods: {
+    updateDistrictCode(event) {
+      let code = event.target.value;
+      for (let district of this.districts) {
+        if (district.code == code) {
+          this.newDistrictName = district.name;
+        }
+      }
+    },
+    updateESDCode(event) {
+      let code = event.target.value;
+      for (let esd of this.esds) {
+        if (esd.code == code) {
+          this.newESDName = esd.name;
+        }
+      }
+    },
     updateReportType(reportType) {
       this.currentReport = reportType;
 
@@ -218,6 +410,7 @@ export default {
         this.fields = this.schoolFields;
       }
       this.getAll(reportType);
+      console.log(this.fields);
     },
     getAll(tableName) {
       const path = "http://localhost:80/all_" + tableName + "s";
@@ -225,7 +418,23 @@ export default {
       axios
         .get(path)
         .then((res) => {
-          console.log(res.data);
+          if (tableName == "esd") {
+            this.esds = res.data;
+            console.log(this.esds);
+          }
+          if (tableName == "district") {
+            this.districts = res.data;
+          }
+          if (tableName == "school_category") {
+            this.school_categories = res.data;
+            console.log(res.data);
+            return;
+          }
+          if (tableName == "grade_category") {
+            this.gradeCategories = res.data;
+            console.log(res.data);
+            return;
+          }
           if (res.data.length == 0) {
             this.recordList = null;
           } else {
@@ -266,8 +475,26 @@ export default {
         });
     },
   },
+  computed: {
+    checkedSchoolCategories() {
+      let checkedCategories = [];
+      for (let current_category of this.currentRecord.school_categories) {
+        for (let category of this.school_categories)
+          if (current_category.id == category.id) {
+            checkedCategories.append(current_category);
+          }
+      }
+      return checkedCategories;
+    },
+  },
   mounted() {
     this.updateReportType("district");
+    // is mounted the right place for this?
+    //this.getAllCodes("esd");
+    this.getAll("esd");
+    this.getAll("district");
+    this.getAll("school_category");
+    this.getAll("grade_category");
   },
 };
 </script>
