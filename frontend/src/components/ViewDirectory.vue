@@ -58,31 +58,31 @@
               class="school-category-selection"
             >
               <div
-                v-for="school_category in school_categories"
-                :key="school_category.id"
+                v-for="schoolCategory in schoolCategories"
+                :key="schoolCategory.id"
               >
                 <input
                   v-if="
                     currentRecord &&
                     currentRecord.school_categories.includes(
                       currentRecord.school_categories.find(
-                        (el) => el.id === school_category.id
+                        (el) => el.id === schoolCategory.id
                       )
                     )
                   "
-                  :key="school_category.id"
-                  :id="school_category.id"
+                  :key="schoolCategory.id"
+                  :id="schoolCategory.id"
                   type="checkbox"
                   checked
                 />
                 <input
                   v-else
-                  :name="school_category.id"
+                  :name="schoolCategory.id"
                   type="checkbox"
-                  :id="school_category.id"
+                  :id="schoolCategory.id"
                 />
-                <label :for="school_category.id">{{
-                  school_category.title
+                <label :for="schoolCategory.id">{{
+                  schoolCategory.title
                 }}</label>
               </div>
             </div>
@@ -297,7 +297,7 @@ export default {
     ];
 
     return {
-      currentReport: "district",
+      currentReport: null,
       currentRecord: null,
       recordList: null,
       fields: null,
@@ -307,7 +307,7 @@ export default {
       schoolFields: schoolFields,
       esds: [],
       districts: [],
-      school_categories: [],
+      schoolCategories: [],
       gradeCategories: [],
       newESDName: null,
       newDistrictName: null,
@@ -358,7 +358,7 @@ export default {
             this.districts = res.data;
           }
           if (tableName == "school_category") {
-            this.school_categories = res.data;
+            this.schoolCategories = res.data;
             console.log(res.data);
             return;
           }
@@ -502,8 +502,6 @@ tbody tr:nth-of-type(odd) {
 }
 #edit-record input select {
   padding: 5px 10px;
-}
-#edit-record div {
 }
 .col1,
 .col2 {
