@@ -6,23 +6,11 @@ from werkzeug.utils import secure_filename
 from app.models import FileUpload, ESD, Administrator, Address, District, School, SchoolCategory, GradeCategory
 import csv
 
-
-@app.route("/")
-def hello_world():
-    return "<p>I love Helen</p>"
-
-
-@app.route("/helen", methods=['GET'])
-def helen():
-    return("I love Helen <3")
-
-
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 # Think security!!
-
 
 @app.route("/esd/<id>", methods=['PATCH'])
 def update_esd(id):
