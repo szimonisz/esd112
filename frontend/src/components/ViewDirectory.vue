@@ -185,7 +185,7 @@ export default {
       console.log(this.fields);
     },
     getAll(tableName) {
-      const path = "http://localhost:80/all_" + tableName + "s";
+      const path = "http://localhost:80/" + tableName + "/all";
       this.recordList = null;
       axios
         .get(path)
