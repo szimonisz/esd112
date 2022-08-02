@@ -63,7 +63,7 @@ def update_esd(id):
         )
         db.session.add(admin)
         db.session.flush()
-        esd.admin = admin.id
+        esd.administrator_id = admin.id
 
     print(data)
     db.session.commit()
@@ -194,14 +194,74 @@ def update_district(id):
         )
         db.session.add(admin)
         db.session.flush()
-        district.admin = admin.id
+        district.administrator_id = admin.id
 
     print(data)
     db.session.commit()
     return 'Success!'
 
 
-@app.route("/school/<id>", methods=['POST'])
+@app.route("/school", methods=['POST'])
+def new_school():
+    data = request.get_json()
+    school_code = data.get('code')
+
+    if school_code is None or school_code == "":
+        return "Need School code to create entry.", 422
+    try:
+        school_code = int(school_code)
+    except ValueError:
+        return "School code must be an integer", 422
+
+    school = db.session.get(School, data.get('code'))
+    if school is not None:
+        return "School with code " + data.get('code') + " already exists.", 422
+    else:
+        address = Address(
+            line_one=data.get('line_one'),
+            line_two=data.get('line_two'),
+            state=data.get('state'),
+            zip=data.get('zip')
+        )
+        admin = Administrator(
+            firstname=data.get('firstname'),
+            middlename=data.get('firstname'),
+            lastname=data.get('firstname'),
+            email=data.get('email'),
+            phone_number=data.get('phone_number')
+        )
+        db.session.add(address)
+        db.session.add(admin)
+        db.session.flush()
+        school = School(
+            code=data.get('code'),
+            name=data.get('name'),
+            district_code=data.get('district_code'),
+            lowest_grade=data.get('lowest_grade'),
+            highest_grade=data.get('highest_grade'),
+            ayp_code=data.get('ayp_code'),
+            address_id=address.id,
+            administrator_id=admin.id,
+            grade_category_id =data.get('grade_category_id')
+        )
+        db.session.add(school)
+        db.session.flush()
+        if data.get('school_category_ids') is not None:
+            for school_category_id in data.get('school_category_ids'):
+                school_category = db.session.get(SchoolCategory, school_category_id)
+                school.school_categories.append(school_category)
+        if school.grade_category_id is not None:
+            grade_category = db.session.get(GradeCategory, school.grade_category_id)
+            school.grade_category = grade_category
+        db.session.commit()
+        return "Success!"
+
+
+
+
+# IDEA:
+#@app.route("/<table>/<id>", methods=['PATCH'])
+@app.route("/school/<id>", methods=['PATCH'])
 def update_school(id):
     data = request.get_json()
 
@@ -212,17 +272,40 @@ def update_school(id):
     school.highest_grade = data.get('highest_grade')
     school.ayp_code = data.get('ayp_code')
 
-    address = db.session.get(Address, data.get('address_id'))
-    address.line_one = data.get('line_one')
-    address.line_two = data.get('line_two')
-    address.city = data.get('city')
-    address.state = data.get('state')
-    address.zip = data.get('zip')
+    if data.get('address_id') is not None:
+        address = db.session.get(Address, data.get('address_id'))
+        address.line_one = data.get('line_one')
+        address.line_two = data.get('line_two')
+        address.city = data.get('city')
+        address.state = data.get('state')
+        address.zip = data.get('zip')
+    else:
+        address = Address(
+            line_one=data.get('line_one'),
+            line_two=data.get('line_two'),
+            state=data.get('state'),
+            zip=data.get('zip')
+        )
+        db.session.add(address)
+        db.session.flush()
+        school.address_id = address.id
 
-    admin = db.session.get(Administrator, data.get('administrator_id'))
-    admin.firstname = data.get('firstname')
-    admin.phone_number = data.get('phone_number')
-    admin.email = data.get('email')
+    if data.get('administrator_id') is not None:
+        admin = db.session.get(Administrator, data.get('administrator_id'))
+        admin.firstname = data.get('firstname')
+        admin.phone_number = data.get('phone_number')
+        admin.email = data.get('email')
+    else:
+        admin = Administrator(
+            firstname=data.get('firstname'),
+            middlename=data.get('firstname'),
+            lastname=data.get('firstname'),
+            email=data.get('email'),
+            phone_number=data.get('phone_number')
+        )
+        db.session.add(admin)
+        db.session.flush()
+        school.administrator_id = admin.id
 
     # clear original school categories
     for school_category in school.school_categories:
@@ -618,8 +701,8 @@ def all_districts():
 
 @app.route('/all_schools', methods=['GET'])
 def all_schools():
-    schools = db.session.query(School, Address, Administrator, GradeCategory).join(Address, School.address_id == Address.id).join(
-        Administrator, School.administrator_id == Administrator.id).join(GradeCategory, School.grade_category_id == GradeCategory.id).all()
+    schools = db.session.query(School, Address, Administrator, GradeCategory).outerjoin(Address, School.address_id == Address.id).outerjoin(
+        Administrator, School.administrator_id == Administrator.id).outerjoin(GradeCategory, School.grade_category_id == GradeCategory.id).all()
     school_list = []
     for school, address, admin, grade_category in schools:
         school_dict = {}

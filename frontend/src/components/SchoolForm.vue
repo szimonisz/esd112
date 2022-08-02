@@ -12,13 +12,13 @@
           {{ field.tableHeader }}
         </label>
         <input
-          v-if="field.fieldName == 'esd_code' && esds.length > 0"
+          v-if="field.fieldName == 'esd_code'"
           type="text"
           v-model="record.esd_code"
           disabled
         />
         <input
-          v-else-if="field.fieldName == 'esd_name' && esds.length > 0"
+          v-else-if="field.fieldName == 'esd_name'"
           type="text"
           v-model="record.esd_name"
           disabled
@@ -37,7 +37,7 @@
           </option>
         </select>
         <input
-          v-else-if="field.fieldName == 'district_name' && districts.length > 0"
+          v-else-if="field.fieldName == 'district_name'"
           type="text"
           :value="
             newDistrictName
@@ -49,9 +49,14 @@
           disabled
         />
         <input
-          v-else-if="currentRecord && field.fieldName == 'code'"
+          v-else-if="currentRecord && field.fieldName == 'code' && isNewRecord"
           type="text"
-          :value="record.code"
+          v-model="record.code"
+        />
+        <input
+          v-else-if="currentRecord && field.fieldName == 'code' && !isNewRecord"
+          type="text"
+          v-model="record.code"
           disabled
         />
         <div
@@ -64,7 +69,7 @@
             ref="schoolCategoriesRef"
           >
             <input
-              v-if="
+              v-if="!(currentRecord['school_categories'] === undefined) &&
                 currentRecord.school_categories.includes(
                   currentRecord.school_categories.find(
                     (el) => el.id === schoolCategory.id
@@ -130,13 +135,38 @@ export default {
       newDistrictName: null,
       record: {},
       selectedSchoolCategories: [],
+      isNewRecord: null,
     };
   },
   mounted() {
     this.record = this.currentRecord;
+    this.isNewRecord = this.isEmpty(this.currentRecord);
   },
 
   methods: {
+    newRecord() {
+      console.log(this.record);
+      const path = "http://localhost:80/" + this.currentReport;
+      axios
+        .post(path, this.record)
+        .then((res) => {
+          console.log(res.data);
+            this.$emit("submitButtonClicked");
+        })
+        .catch((err) => {
+          console.log("hi");
+          if (err.response){
+            console.log(err.response.status)
+            if (err.response.status == '422'){
+              alert(err.response.data);
+            }
+          }
+          console.error(err);
+        });
+    },
+    isEmpty(obj) {
+      return Object.keys(obj).length == 0;
+    },
     schoolCategoriesChecked() {
       console.log(this.$refs.schoolCategoriesRef);
       this.$refs.schoolCategoriesRef.forEach((schoolCategory) => {
@@ -165,12 +195,17 @@ export default {
       }
     },
   submitRecordUpdate(id) {
+    if (this.isNewRecord) {
+      this.schoolCategoriesChecked();
+      this.record['school_category_ids'] = this.selectedSchoolCategories;
+      this.newRecord();
+    } else {
     this.schoolCategoriesChecked();
     this.record['school_category_ids'] = this.selectedSchoolCategories;
     const path = "http://localhost:80/" + this.currentReport + "/" + id;
     console.log(this.record);
     axios
-      .post(path, this.record)
+      .patch(path, this.record)
       .then((res) => {
         console.log(res.data);
         this.$emit("submitButtonClicked");
@@ -178,6 +213,7 @@ export default {
       .catch((err) => {
         console.error(err);
       });
+    }
   },
 },
 };

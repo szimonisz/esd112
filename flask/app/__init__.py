@@ -19,6 +19,41 @@ db = SQLAlchemy(app)
 from app.models import *
 
 db.create_all()
+school_categories = [
+    'Public School',
+    'Regular School',
+    'Alternative School',
+    'Special Education School',
+    'Institution',
+    'Contract School',
+    'Preschool',
+    'Vocational/technical school',
+    'Adult Jail',
+    'Affiliated With District',
+    'Re-Engagement School',
+    'Detention Center',
+    'Charter',
+    'Not Affiliated With District',
+    'Tribal School',
+    'College/University'
+]
+grade_categories = [
+    'PK-12',
+    'Elementary School',
+    'High School',
+    'Middle School',
+    'Other',
+    'PK Only',
+    'K-12',
+    'Jr High'
+]
+for school_category in school_categories:
+    if db.session.query(SchoolCategory).filter(SchoolCategory.title == school_category).first() is None:
+        db.session.add(SchoolCategory(title=school_category))
+for grade_category in grade_categories:
+    if db.session.query(GradeCategory).filter(GradeCategory.title == grade_category).first() is None:
+        db.session.add(GradeCategory(title=grade_category))
+
 db.session.commit()
 
 from app import views

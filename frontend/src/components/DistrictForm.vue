@@ -26,7 +26,7 @@
             </option>
           </select>
           <input
-            v-else-if="field.fieldName == 'esd_name' && esds.length > 0"
+            v-else-if="field.fieldName == 'esd_name'"
             type="text"
             :value="
               newESDName

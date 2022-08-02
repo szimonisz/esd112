@@ -34,7 +34,7 @@ class GradeCategory(db.Model):
 class School(db.Model):
     __tablename__ = 'school'
     code = db.Column(db.Integer, primary_key=True,autoincrement=False)
-    name = db.Column(db.String(200),nullable=False)
+    name = db.Column(db.String(200),nullable=True)
     lowest_grade = db.Column(db.String(2))
     highest_grade = db.Column(db.String(2))
     ayp_code = db.Column(db.String(1))

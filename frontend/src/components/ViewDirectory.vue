@@ -71,7 +71,7 @@
           <tr v-for="(item, index) in recordList" :key="index">
             <td v-for="field in fields" :key="field.value">
               {{
-                field.fieldName == "school_categories"
+                field.fieldName == "school_categories" && !(item.school_categories === undefined)
                   ? item.school_categories
                       .map((value) => value.title)
                       .join(",\n")
