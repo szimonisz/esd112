@@ -41,6 +41,22 @@
         value="School"
       />
     </div>
+    <div id="add-record-container">
+      <button @click="addRecord()">Add Record</button>
+      <ModalMinimal
+        @closeButtonClicked="modalActive = false"
+        @submitButtonClicked="getAll(currentReport)"
+        :modalActive="modalActive"
+        :currentReport="currentReport"
+        :currentRecord="currentRecord"
+        :fields="fields"
+        :esds="esds"
+        :districts="districts"
+        :schoolCategories="schoolCategories"
+        :gradeCategories="gradeCategories"
+      >
+      </ModalMinimal>
+    </div>
     <div>
       <table id="record-table" v-if="fields && recordList">
         <thead>
@@ -208,6 +224,9 @@ export default {
     editRecord(id) {
       this.getRecord(id);
     },
+    addRecord() {
+      this.modalActive= true;
+    },
     getRecord(id) {
       const path = "http://localhost:80/" + this.currentReport + "/" + id;
       axios
@@ -320,5 +339,12 @@ tbody tr:nth-of-type(odd) {
 }
 .school-category-selection {
   padding: 0px;
+}
+#add-record-container {
+  padding: 20px;
+  background: #009879;
+}
+#add-record-container button {
+  padding: 20px;
 }
 </style>

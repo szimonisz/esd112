@@ -37,9 +37,6 @@ export default {
 </script>
 
 <style>
-body {
-  background: pink;
-}
 #message {
   display: flex;
   padding: 30px;
