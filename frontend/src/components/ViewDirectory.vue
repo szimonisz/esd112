@@ -1,7 +1,8 @@
 <template>
   <div id="container">
-    <Modal
-      @closeButtonClicked="this.modalActive = false"
+    <ModalMinimal
+      @closeButtonClicked="modalActive = false"
+      @submitButtonClicked="getAll(currentReport)"
       :modalActive="modalActive"
       :currentReport="currentReport"
       :currentRecord="currentRecord"
@@ -11,7 +12,7 @@
       :schoolCategories="schoolCategories"
       :gradeCategories="gradeCategories"
     >
-    </Modal>
+    </ModalMinimal>
     <div class="radio-group">
       <p>Report Type:</p>
       <label for="district">District</label>
@@ -41,7 +42,7 @@
       />
     </div>
     <div>
-      <table id="record-table" v-if="fields">
+      <table id="record-table" v-if="fields && recordList">
         <thead>
           <tr>
             <th v-for="field in fields" :key="field.value">
@@ -75,12 +76,13 @@
 </template>
 
 <script>
-import Modal from "../components/EditModal.vue";
+//import Modal from "../components/EditModal.vue";
+import ModalMinimal from "../components/EditModalMinimal.vue";
 import axios from "axios";
 export default {
   name: "viewDirectory",
   components: {
-    Modal,
+    ModalMinimal,
   },
   data() {
     let esdFields = [
@@ -168,26 +170,23 @@ export default {
         .then((res) => {
           if (tableName == "esd") {
             this.esds = res.data;
-            console.log(this.esds);
           }
           if (tableName == "district") {
             this.districts = res.data;
           }
           if (tableName == "school_category") {
             this.schoolCategories = res.data;
-            console.log(res.data);
-            return;
           }
           if (tableName == "grade_category") {
             this.gradeCategories = res.data;
-            console.log(res.data);
-            return;
           }
-          if (res.data.length == 0) {
-            this.recordList = null;
-          } else {
-            this.recordList = null;
-            this.recordList = res.data;
+          if (tableName == this.currentReport) {
+            if (res.data.length == 0) {
+              this.recordList = null;
+            } else {
+              this.recordList = null;
+              this.recordList = res.data;
+            }
           }
         })
         .catch((err) => {
@@ -211,36 +210,20 @@ export default {
     },
     getRecord(id) {
       const path = "http://localhost:80/" + this.currentReport + "/" + id;
-      this.modalActive = true;
       axios
         .get(path)
         .then((res) => {
           console.log(res.data);
           this.currentRecord = res.data;
+          this.modalActive = true;
         })
         .catch((err) => {
           console.error(err);
         });
     },
-    submitRecordUpdate(id) {
-      const path = "http://localhost:80/" + this.currentReport + "/" + id;
-      console.log(this.currentRecord);
-      axios
-        .post(
-          path,
-        )
-        .then((res) => {
-          console.log(res.data);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-
-    }
   },
   mounted() {
     this.updateReportType("district");
-    // is mounted the right place for this?
     this.getAll("esd");
     this.getAll("district");
     this.getAll("school_category");

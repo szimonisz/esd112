@@ -237,7 +237,7 @@ export default {
       }
     },
     closeModal() {
-      this.$emit("closeButtonClicked");
+      //this.$emit("closeButtonClicked");
     },
   },
 };

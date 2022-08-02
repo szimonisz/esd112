@@ -20,6 +20,93 @@ def allowed_file(filename):
 
 # Think security!!
 
+@app.route("/esd/<id>",methods=['POST'])
+def update_esd(id):
+    esd = db.session.get(ESD,id)
+    data = request.get_json()
+    esd.name = data['name']
+    
+    address = db.session.get(Address,data['address_id'])
+    address.line_one = data['line_one']
+    address.line_two = data['line_two']
+    address.state = data['state']
+    address.zip = data['zip']
+
+    admin = db.session.get(Administrator,data['administrator_id'])
+    admin.firstname = data['firstname']
+    admin.phone_number = data['phone_number']
+    admin.email = data['email']
+
+    print(data)
+    db.session.commit()
+    return 'Success!'
+
+@app.route("/district/<id>",methods=['POST'])
+def update_district(id):
+    data = request.get_json()
+
+    district = db.session.get(District,id)
+    district.name = data['name']
+    district.esd_code = data['esd_code']
+    
+    address = db.session.get(Address,data['address_id'])
+    address.line_one = data['line_one']
+    address.line_two = data['line_two']
+    address.city= data['city']
+    address.state = data['state']
+    address.zip = data['zip']
+
+    admin = db.session.get(Administrator,data['administrator_id'])
+    admin.firstname = data['firstname']
+    admin.phone_number = data['phone_number']
+    admin.email = data['email']
+
+    print(data)
+    db.session.commit()
+    return 'Success!'
+    
+@app.route("/school/<id>",methods=['POST'])
+def update_school(id):
+    data = request.get_json()
+
+    school = db.session.get(School,id)
+    school.name = data['name']
+    school.district_code = data['district_code']
+    school.lowest_grade = data['lowest_grade']
+    school.highest_grade = data['highest_grade']
+    school.ayp_code = data['ayp_code']
+    
+    address = db.session.get(Address,data['address_id'])
+    address.line_one = data['line_one']
+    address.line_two = data['line_two']
+    address.city= data['city']
+    address.state = data['state']
+    address.zip = data['zip']
+
+    admin = db.session.get(Administrator,data['administrator_id'])
+    admin.firstname = data['firstname']
+    admin.phone_number = data['phone_number']
+    admin.email = data['email']
+
+    # clear original school categories
+    for school_category in school.school_categories:
+        school.school_categories.remove(school_category)
+    db.session.flush()
+
+    # update with new school categories
+    for school_category_id in data['school_category_ids']:
+        school_category = db.session.get(SchoolCategory,school_category_id)
+        school.school_categories.append(school_category)
+    
+    school.grade_category_id = data['grade_category_id']
+
+    grade_category = db.session.get(GradeCategory,school.grade_category_id)
+    school.grade_category = grade_category
+    
+    print(school.to_dict())
+    db.session.commit()
+    return 'Success!'
+
 def insert_esd(row):
     esd = db.session.get(ESD, row['ESD Code'])
     if esd:
@@ -485,7 +572,8 @@ def district(id):
             district_dict.update(address.to_dict())
         if admin:
             district_dict.update(admin.to_dict())
-        district_dict.update({"esd_name": esd.name})
+        if esd:
+            district_dict.update({"esd_name": esd.name})
     return jsonify(district_dict)
 
 @app.route("/school/<id>", methods=['GET'])
