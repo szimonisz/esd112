@@ -44,7 +44,7 @@
     <div id="add-record-container">
       <button @click="addRecord()">Add Record</button>
       <ModalMinimal
-        @closeButtonClicked="modalActive = false"
+        @closeButtonClicked="closeModal()"
         @submitButtonClicked="getAll(currentReport)"
         :modalActive="modalActive"
         :currentReport="currentReport"
@@ -150,7 +150,8 @@ export default {
 
     return {
       currentReport: null,
-      currentRecord: null,
+      //currentRecord: null,
+      currentRecord: {},
       recordList: null,
       fields: null,
       modalActive: false,
@@ -164,8 +165,13 @@ export default {
     };
   },
   methods: {
+    closeModal() {
+      this.modalActive = false;
+      this.currentRecord = {};
+    },
     updateReportType(reportType) {
-      this.currentRecord = null;
+      //this.currentRecord = null;
+      this.currentRecord = {};
       this.currentReport = reportType;
 
       if (reportType == "esd") {

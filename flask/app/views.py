@@ -20,46 +20,102 @@ def allowed_file(filename):
 
 # Think security!!
 
-@app.route("/esd/<id>",methods=['POST'])
+@app.route("/esd/<id>",methods=['PATCH'])
 def update_esd(id):
     esd = db.session.get(ESD,id)
     data = request.get_json()
-    esd.name = data['name']
+    esd.name = data.get('name')
     
-    address = db.session.get(Address,data['address_id'])
-    address.line_one = data['line_one']
-    address.line_two = data['line_two']
-    address.state = data['state']
-    address.zip = data['zip']
+    if data.get('address_id') is not None: 
+        address = db.session.get(Address,data.get('address_id'))
+        address.line_one = data.get('line_one')
+        address.line_two = data.get('line_two')
+        address.city= data.get('city')
+        address.state = data.get('state')
+        address.zip = data.get('zip')
+    else:
+        address = Address(
+            line_one=data.get('line_one'),
+            line_two=data.get('line_two'),
+            state=data.get('state'),
+            zip=data.get('zip')
+        )
+        db.session.add(address)
+        db.session.flush()
+        esd.address_id = address.id
 
-    admin = db.session.get(Administrator,data['administrator_id'])
-    admin.firstname = data['firstname']
-    admin.phone_number = data['phone_number']
-    admin.email = data['email']
+    if data.get('administrator_id') is not None:
+        admin = db.session.get(Administrator,data.get('administrator_id'))
+        admin.firstname = data.get('firstname')
+        admin.phone_number = data.get('phone_number')
+        admin.email = data.get('email')
+    else:
+        admin = Administrator(
+            firstname=data.get('firstname'),
+            middlename=data.get('firstname'),
+            lastname=data.get('firstname'),
+            email=data.get('email'),
+            phone_number=data.get('phone_number')
+        )
+        db.session.add(admin)
+        db.session.flush()
+        esd.admin = admin.id
 
     print(data)
     db.session.commit()
     return 'Success!'
+
+@app.route('/esd',methods=['POST'])
+def new_esd():
+    # note: json().get() will return None if key does not exist in request
+    data = request.get_json()
+    print(data.get('code'))
+    if data.get('code') is None:
+        return "Need ESD code to create entry.", 422
+
+    esd = db.session.get(ESD,data.get('code'))
+    if esd is not None:
+        return "ESD with code " + data.get('code') + " already exists.", 422
+    else:
+        address = Address(
+            line_one=data.get('line_one'),
+            line_two=data.get('line_two'),
+            state=data.get('state'),
+            zip=data.get('zip')
+        )
+        admin = Administrator(
+            firstname=data.get('firstname'),
+            middlename=data.get('firstname'),
+            lastname=data.get('firstname'),
+            email=data.get('email'),
+            phone_number=data.get('phone_number')
+        )
+        db.session.add(address)
+        db.session.add(admin)
+        db.session.flush()
+        esd = ESD(
+            code=data.get('code'),
+            name=data.get('name'),
+            address_id=address.id,
+            administrator_id=admin.id
+        )
+        db.session.add(esd)
+        db.session.commit()
+        return "Success!"
+
 
 @app.route("/district/<id>",methods=['POST'])
 def update_district(id):
     data = request.get_json()
 
     district = db.session.get(District,id)
-    district.name = data['name']
-    district.esd_code = data['esd_code']
+    district.name = data.get('name')
+    district.esd_code = data.get('esd_code')
     
-    address = db.session.get(Address,data['address_id'])
-    address.line_one = data['line_one']
-    address.line_two = data['line_two']
-    address.city= data['city']
-    address.state = data['state']
-    address.zip = data['zip']
-
-    admin = db.session.get(Administrator,data['administrator_id'])
-    admin.firstname = data['firstname']
-    admin.phone_number = data['phone_number']
-    admin.email = data['email']
+    admin = db.session.get(Administrator,data.get('administrator_id'))
+    admin.firstname = data.get('firstname')
+    admin.phone_number = data.get('phone_number')
+    admin.email = data.get('email')
 
     print(data)
     db.session.commit()
@@ -70,23 +126,23 @@ def update_school(id):
     data = request.get_json()
 
     school = db.session.get(School,id)
-    school.name = data['name']
-    school.district_code = data['district_code']
-    school.lowest_grade = data['lowest_grade']
-    school.highest_grade = data['highest_grade']
-    school.ayp_code = data['ayp_code']
+    school.name = data.get('name')
+    school.district_code = data.get('district_code')
+    school.lowest_grade = data.get('lowest_grade')
+    school.highest_grade = data.get('highest_grade')
+    school.ayp_code = data.get('ayp_code')
     
-    address = db.session.get(Address,data['address_id'])
-    address.line_one = data['line_one']
-    address.line_two = data['line_two']
-    address.city= data['city']
-    address.state = data['state']
-    address.zip = data['zip']
+    address = db.session.get(Address,data.get('address_id'))
+    address.line_one = data.get('line_one')
+    address.line_two = data.get('line_two')
+    address.city= data.get('city')
+    address.state = data.get('state')
+    address.zip = data.get('zip')
 
-    admin = db.session.get(Administrator,data['administrator_id'])
-    admin.firstname = data['firstname']
-    admin.phone_number = data['phone_number']
-    admin.email = data['email']
+    admin = db.session.get(Administrator,data.get('administrator_id'))
+    admin.firstname = data.get('firstname')
+    admin.phone_number = data.get('phone_number')
+    admin.email = data.get('email')
 
     # clear original school categories
     for school_category in school.school_categories:
@@ -94,11 +150,11 @@ def update_school(id):
     db.session.flush()
 
     # update with new school categories
-    for school_category_id in data['school_category_ids']:
+    for school_category_id in data.get('school_category_ids'):
         school_category = db.session.get(SchoolCategory,school_category_id)
         school.school_categories.append(school_category)
     
-    school.grade_category_id = data['grade_category_id']
+    school.grade_category_id = data.get('grade_category_id')
 
     grade_category = db.session.get(GradeCategory,school.grade_category_id)
     school.grade_category = grade_category

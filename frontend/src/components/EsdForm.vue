@@ -13,7 +13,14 @@
             {{ field.tableHeader }}
           </label>
           <input
-            v-if="field.fieldName == 'code'"
+            v-if="field.fieldName == 'code' && isNewRecord"
+            type="text"
+            v-model="record.code"
+            :id="field.fieldName"
+            :name="field.fieldName"
+          />
+          <input
+            v-else-if="field.fieldName == 'code' && !isNewRecord"
             type="text"
             v-model="record.code"
             :id="field.fieldName"
@@ -43,40 +50,62 @@
 <script>
 import axios from "axios";
 export default {
-  props: [
-    "currentReport",
-    "currentRecord",
-    "fields",
-  ],
+  props: ["currentReport", "currentRecord", "fields"],
   data() {
     return {
-      record: {}
+      record: {},
+      isNewRecord: null,
     };
   },
   created() {
     this.record = this.currentRecord;
+    this.isNewRecord = this.isEmpty(this.currentRecord);
   },
 
   methods: {
-    submitRecordUpdate(id) {
-      const path = "http://localhost:80/" + this.currentReport + "/" + id;
-      console.log(this.currentRecord);
+    isEmpty(obj) {
+      return Object.keys(obj).length == 0;
+    },
+    newRecord() {
+      console.log(this.record);
+      const path = "http://localhost:80/" + this.currentReport;
       axios
-        .post(
-          path,
-          this.record
-        )
+        .post(path, this.record)
         .then((res) => {
           console.log(res.data);
-          this.$emit("submitButtonClicked");
+            this.$emit("submitButtonClicked");
         })
         .catch((err) => {
+          console.log("hi");
+          if (err.response){
+            console.log(err.response.status)
+            if (err.response.status == '422'){
+              alert(err.response.data);
+            }
+          }
           console.error(err);
         });
-    }
+    },
+    submitRecordUpdate(id) {
+      if (this.isNewRecord) {
+        this.newRecord();
+      } else {
+        const path = "http://localhost:80/" + this.currentReport + "/" + id;
+        console.log(this.currentRecord);
+        axios
+          //.post(
+          .patch(path, this.record)
+          .then((res) => {
+            console.log(res.data);
+            this.$emit("submitButtonClicked");
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      }
+    },
   },
 };
 </script>
 
-<style>
-</style>
+<style></style>

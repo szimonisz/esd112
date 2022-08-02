@@ -54,7 +54,7 @@ class School(db.Model):
 class ESD(db.Model):
     __tablename__ = 'esd'
     code = db.Column(db.String(10), primary_key=True,autoincrement=False)
-    name = db.Column(db.String(200),nullable=False)
+    name = db.Column(db.String(200),nullable=True)
     address_id = db.Column(db.Integer,db.ForeignKey("address.id"),unique=True,nullable=True)
     administrator_id = db.Column(db.Integer,db.ForeignKey('administrator.id'),unique=True,nullable=True)
     districts = db.relationship("District")
@@ -80,11 +80,11 @@ class District(db.Model):
 
 class Address(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    line_one = db.Column(db.String(200),nullable=False)
+    line_one = db.Column(db.String(200),nullable=True)
     line_two = db.Column(db.String(200),nullable=True)
     city = db.Column(db.String(200),nullable=True)
-    state = db.Column(db.String(200),nullable=False)
-    zip = db.Column(db.String(10), nullable=False)
+    state = db.Column(db.String(200),nullable=True)
+    zip = db.Column(db.String(10), nullable=True)
 
     esd = db.relationship('ESD',back_populates='address')
     district = db.relationship('District',back_populates='address')
@@ -94,11 +94,11 @@ class Address(db.Model):
 
 class Administrator(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    firstname = db.Column(db.String, nullable=False)
+    firstname = db.Column(db.String, nullable=True)
     middlename = db.Column(db.String, nullable=True)
-    lastname = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, nullable=False)
-    phone_number = db.Column(db.String, nullable=False)
+    lastname = db.Column(db.String, nullable=True)
+    email = db.Column(db.String, nullable=True)
+    phone_number = db.Column(db.String, nullable=True)
     esd = db.relationship('ESD',back_populates="administrator") 
     district = db.relationship('District',back_populates="administrator") 
     school = db.relationship('School',back_populates="administrator") 

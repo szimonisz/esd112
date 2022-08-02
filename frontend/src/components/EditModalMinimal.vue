@@ -2,7 +2,7 @@
   <div>
     <transition name="modal-animation">
       <!-- Only show this if modalActive is true-->
-      <div v-if="modalActive && currentRecord" class="modal">
+      <div v-if="modalActive" class="modal">
         <transition name="modal-animation-inner">
           <div class="modal-inner">
             <DistrictForm
@@ -100,6 +100,8 @@ export default {
       this.$emit("closeButtonClicked");
     },
   },
+  mounted(){
+  }
 };
 </script>
 

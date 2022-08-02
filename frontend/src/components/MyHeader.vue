@@ -25,6 +25,7 @@ body {
   font-weight: 30;
 }
 .logo {
+  color: white;
   padding: 10px 0;
   text-transform: uppercase;
   grid-column: 2 / 3;
