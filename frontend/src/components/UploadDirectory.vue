@@ -68,7 +68,7 @@ export default {
         });
     },
     getUploadHistory() {
-      const path = "http://localhost:80/uploadHistory";
+      const path = "http://localhost:80/upload/all";
       axios
         .get(path)
         .then((res) => {
@@ -84,7 +84,7 @@ export default {
         });
     },
     deleteUpload(id) {
-      const path = "http://localhost:80/delete_upload/"+id;
+      const path = "http://localhost:80/upload/"+id;
       axios.delete(path)
         .then((res) => {
             console.log(res.data)
