@@ -38,9 +38,14 @@
             disabled
           />
           <input
-            v-else-if="currentRecord && field.fieldName == 'code'"
+            v-else-if="currentRecord && field.fieldName == 'code' && isNewRecord"
             type="text"
-            :value="record.code"
+            v-model="record.code"
+          />
+          <input
+            v-else-if="currentRecord && field.fieldName == 'code' && !isNewRecord"
+            type="text"
+            v-model="record.code"
             disabled
           />
           <input
@@ -74,13 +79,37 @@ export default {
     return {
       record: {},
       newESDName: null,
+      isNewRecord: null, 
     };
   },
   mounted() {
     this.record = this.currentRecord;
+    this.isNewRecord = this.isEmpty(this.currentRecord);
   },
-
   methods: {
+    newRecord() {
+      console.log(this.record);
+      const path = "http://localhost:80/" + this.currentReport;
+      axios
+        .post(path, this.record)
+        .then((res) => {
+          console.log(res.data);
+            this.$emit("submitButtonClicked");
+        })
+        .catch((err) => {
+          console.log("hi");
+          if (err.response){
+            console.log(err.response.status)
+            if (err.response.status == '422'){
+              alert(err.response.data);
+            }
+          }
+          console.error(err);
+        });
+    },
+    isEmpty(obj) {
+      return Object.keys(obj).length == 0;
+    },
     updateESDCode(event) {
       let code = event.target.value;
       for (let esd of this.esds) {
@@ -90,10 +119,13 @@ export default {
       }
     },
     submitRecordUpdate(id) {
+      if (this.isNewRecord) {
+        this.newRecord();
+      } else {
       const path = "http://localhost:80/" + this.currentReport + "/" + id;
       console.log(this.record);
       axios
-        .post(
+        .patch(
           path,
           this.record
         )
@@ -106,6 +138,7 @@ export default {
         });
     }
   },
+  }
 };
 </script>
 

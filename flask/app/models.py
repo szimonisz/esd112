@@ -67,7 +67,7 @@ class ESD(db.Model):
 class District(db.Model):
     __tablename__ = 'district'
     code = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200),nullable=False)
+    name = db.Column(db.String(200),nullable=True)
     address_id = db.Column(db.Integer,db.ForeignKey("address.id"),unique=True,nullable=True)
     administrator_id = db.Column(db.Integer,db.ForeignKey('administrator.id'),unique=True,nullable=True)
     esd_code = db.Column(db.String(10),db.ForeignKey('esd.code'))
