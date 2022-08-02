@@ -140,16 +140,11 @@
                     disabled
                   />
                   <input
-                    v-else-if="field.fieldName == 'code'"
+                    v-else-if="currentRecord && field.fieldName == 'code'"
                     type="text"
                     :id="field.fieldName"
                     :name="field.fieldName"
-                    :value="
-                      newDistrictName
-                        ? newDistrictName
-                        : currentRecord
-                        ? currentRecord.code
-                        : ''
+                    :value="currentRecord.code
                     "
                     disabled
                   />
