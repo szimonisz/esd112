@@ -2,9 +2,10 @@ import re
 import os
 from flask import flash, request, redirect, jsonify, Blueprint
 from werkzeug.utils import secure_filename
-from app.models import FileUpload, ESD, Administrator, Address, District, School, SchoolCategory, GradeCategory
+from app.models import FileUpload, ESD, Administrator, Address, District, School, SchoolCategory, GradeCategory 
 import csv
 from .db import db
+from sqlalchemy import func
 
 directory_blueprint = Blueprint('directory_blueprint',__name__)
 
@@ -225,32 +226,26 @@ def all_records(table):
         return jsonify(district_list)
 
     elif table == 'school':
-        schools = db.session.query(School, Address, Administrator, GradeCategory).outerjoin(Address, School.address_id == Address.id).outerjoin(
-            Administrator, School.administrator_id == Administrator.id).outerjoin(GradeCategory, School.grade_category_id == GradeCategory.id).all()
+        schools = db.session.query(School, Address, Administrator, GradeCategory, District, ESD).outerjoin(Address, School.address_id == Address.id).outerjoin(
+            Administrator, School.administrator_id == Administrator.id).outerjoin(GradeCategory, School.grade_category_id == GradeCategory.id).outerjoin(District, School.district_code == District.code).outerjoin(ESD, District.esd_code == ESD.code).all()
         school_list = []
-        for school, address, admin, grade_category in schools:
-            school_dict = {}
-            school_dict.update(school.to_dict())
+        for school, address, admin, grade_category, district, esd in schools:
+            school_dict = school.to_dict()
 
             school_categories = []
-            if school.school_categories:
+            if school.school_categories is not None:
                 for school_category in school.school_categories:
                     school_categories.append(school_category.to_dict())
-                    school_dict.update(
-                        # {'school_categories': ',\n'.join(school_category_names)})
-                        {'school_categories': school_categories})
+                school_dict.update(
+                    {'school_categories': school_categories})
 
-            if school.district_code:
-                district = db.session.query(District).get(school.district_code)
+            if district is not None:
                 school_dict.update({"district_name": district.name})
-                school_dict.update({"esd_code": district.esd_code})
-                if district.esd_code:
-                    esd = db.session.query(ESD).get(district.esd_code)
+                if esd is not None:
+                    school_dict.update({"esd_code": district.esd_code})
                     school_dict.update({"esd_name": esd.name})
-                else:
-                    school_dict.update({"esd_name": None})
 
-            if school.grade_category:
+            if school.grade_category is not None:
                 school_dict.update({"grade_category": grade_category.title})
 
             school_dict.update(address.to_dict())

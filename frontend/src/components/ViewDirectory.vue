@@ -203,10 +203,7 @@ export default {
             this.gradeCategories = res.data;
           }
           if (tableName == this.currentReport) {
-            if (res.data.length == 0) {
-              this.recordList = null;
-            } else {
-              this.recordList = null;
+            if (res.data.length > 0) {
               this.recordList = res.data;
             }
           }
