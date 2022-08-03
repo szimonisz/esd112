@@ -1,6 +1,6 @@
 <template>
   <div id="container">
-    <ModalMinimal
+    <Modal
       v-if="modalActive"
       @closeButtonClicked="closeModal()"
       @submitButtonClicked="getAll(currentReport)"
@@ -13,7 +13,7 @@
       :schoolCategories="schoolCategories"
       :gradeCategories="gradeCategories"
     >
-    </ModalMinimal>
+    </Modal>
     <div class="radio-group">
       <p>Report Type:</p>
       <label for="district">District</label>
@@ -81,12 +81,12 @@
 </template>
 
 <script>
-import ModalMinimal from "../components/EditModalMinimal.vue";
+import Modal from "./MyModal.vue";
 import axios from "axios";
 export default {
   name: "viewDirectory",
   components: {
-    ModalMinimal,
+    Modal,
   },
   data() {
     let esdFields = [

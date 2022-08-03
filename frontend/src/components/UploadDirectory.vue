@@ -58,8 +58,6 @@ export default {
         )
         .then((res) => {
           console.log("File Upload: Success");
-          console.log(res.data);
-          console.log(fileInput);
           this.getUploadHistory();
         })
         .catch((err) => {
@@ -72,7 +70,6 @@ export default {
       axios
         .get(path)
         .then((res) => {
-          console.log(res.data);
           if (res.data.length == 0) {
             this.uploadList = null;
           } else {
@@ -87,7 +84,6 @@ export default {
       const path = "http://localhost:80/upload/"+id;
       axios.delete(path)
         .then((res) => {
-            console.log(res.data)
             this.getUploadHistory();
         })
         .catch((err) => {
@@ -96,7 +92,6 @@ export default {
     }
   },
   created() {
-    //this.getResponse();
     this.getUploadHistory();
   },
 };
