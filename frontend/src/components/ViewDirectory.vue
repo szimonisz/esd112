@@ -46,6 +46,9 @@
       </div>
     </div>
     <div>
+      <div class="loader-container" v-if="loading">
+        <div class="loader"></div>
+      </div>
       <table id="record-table" v-if="fields && recordList">
         <thead>
           <tr>
@@ -159,7 +162,8 @@ export default {
       gradeCategories: [],
       // determines if 'add new record' or 'edit existing record' form modal is opened
       isNewRecord: null,
-      currentReportCapitalized: null
+      currentReportCapitalized: null,
+      loading: false,
     };
   },
   methods: {
@@ -185,6 +189,7 @@ export default {
     },
     getAll(tableName) {
       const path = "http://localhost:80/" + tableName + "/all";
+      this.loading = true;
       this.recordList = null;
       axios
         .get(path)
@@ -210,9 +215,11 @@ export default {
               this.recordList = res.data;
             }
           }
+          this.loading = false;
         })
         .catch((err) => {
           console.error(err);
+          this.loading = false;
         });
     },
     deleteRecord(id) {
@@ -259,12 +266,21 @@ export default {
 
 <style>
 .radio-group {
-  border-top: 1px white solid;
+  border-top: 4px white solid;
   /*border-bottom: 1px white solid;*/
   background-color: #009879;
   display: flex;
   font-weight: bold;
   color: white;
+  padding-top: 5px;
+}
+.radio-group input[type="radio"],
+.radio-group label,
+.radio-group p,
+.radio-group button {
+  vertical-align: baseline;
+  padding: 10px;
+  margin: 10px;
 }
 table {
   border-collapse: collapse;
@@ -297,14 +313,6 @@ tbody tr:nth-of-type(even) {
 tbody tr:nth-of-type(odd) {
   background-color: #ffff;
 }
-.radio-group input[type="radio"],
-.radio-group label,
-.radio-group p,
-.radio-group button {
-  vertical-align: baseline;
-  padding: 10px;
-  margin: 10px;
-}
 #container {
   display: inline-block;
   min-width: 100%;
@@ -312,15 +320,44 @@ tbody tr:nth-of-type(odd) {
 #add-record-container button {
   transition-duration: 0.4s;
   text-transform: capitalize;
-  background-color: #ffff;
-  border-radius: 12px;
-  border: 2px solid #f3f3f3;
+  border: 2px solid #ffff;
   font-size: 12px;
+  padding: 10px;
+  margin: 10px;
+  /*background-color:#1e6fc5;*/
+  color: white;
+  background-color: #009879;
+  font-weight: bold;
 }
 #add-record-container button:hover {
+  background-color: #ffff;
+  color: #009879;
   font-size: 12px;
-  background-color:blue;
-  color: white;
-  
+  font-weight: bold;
+}
+.loader-container {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding-top: 200px;
+}
+/* Spinner animation borrowed from: https://www.w3schools.com/howto/howto_css_loader.asp */
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  text-align: center;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

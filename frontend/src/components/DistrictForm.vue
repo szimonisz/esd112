@@ -56,7 +56,7 @@
       <button
         type="submit"
         @click="$emit('submitButtonClicked',record)"
-        id="submit-button"
+        class="submit-button"
       >
         Submit
       </button>

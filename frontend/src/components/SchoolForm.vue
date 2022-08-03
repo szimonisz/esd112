@@ -108,7 +108,7 @@
     <button
       type="submit"
       @click="saveSchoolCategoriesAndSubmit()"
-      id="submit-button"
+      class="submit-button"
     >
       Submit
     </button>

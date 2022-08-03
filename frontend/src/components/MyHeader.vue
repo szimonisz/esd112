@@ -40,6 +40,7 @@ nav ul {
 nav li {
   margin-left: 3em;
   margin-bottom: 0;
+  color: white;
 }
 nav a {
   color: white;

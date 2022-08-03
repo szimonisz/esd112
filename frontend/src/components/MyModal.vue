@@ -6,7 +6,7 @@
           <div class="modal-inner">
             <div class="modal-content">
               <h1>{{ currentReport }}</h1>
-              <h3 v-if="isNewRecord">Add a Record:</h3>
+              <h3 v-if="isNewRecord">Create a Record:</h3>
               <h3 v-else>Edit a Record:</h3>
               <DistrictForm
                 @submitButtonClicked="submitRecordUpdate"
@@ -90,8 +90,8 @@ export default {
           this.closeModalAfterSubmit();
         })
         .catch((err) => {
-          if (err.response){
-            if (err.response.status == '422'){
+          if (err.response) {
+            if (err.response.status == "422") {
               alert(err.response.data);
             }
           }
@@ -102,7 +102,8 @@ export default {
       if (this.isNewRecord) {
         this.newRecord(record);
       } else {
-        const path = "http://localhost:80/" + this.currentReport + "/" + record.code;
+        const path =
+          "http://localhost:80/" + this.currentReport + "/" + record.code;
         axios
           //.post(
           .patch(path, record)
@@ -145,7 +146,8 @@ export default {
   height: 80%;
   padding: 64px 16px;
   box-shadow: 5px 10px #888888;
-  background-color: #fff;
+  background-color: #009879;
+  color: white;
   border: 1px solid;
   overflow: scroll;
 }
@@ -162,7 +164,7 @@ i {
   font-size: 20px;
   cursor: pointer;
 }
-i::hover {
+i::hover sharp {
   color: grey;
 }
 .edit-record {
@@ -171,12 +173,17 @@ i::hover {
   padding: 2px;
 }
 .edit-record label {
+  color: white;
+  font-weight: bold;
   display: inline-block;
   width: 110px;
   white-space: nowrap;
 }
-.edit-record input select {
-  padding: 5px 10px;
+.edit-record select,
+.edit-record input {
+  padding: 5px;
+  border-radius: 0;
+  border: 0px;
 }
 .col1,
 .col2 {
@@ -193,5 +200,24 @@ i::hover {
   grid-column: 2 / 3;
   display: flex;
   flex-direction: column;
+}
+
+.submit-button {
+  transition-duration: 0.4s;
+  text-transform: capitalize;
+  border: 2px solid #ffff;
+  font-size: 15px;
+  padding: 10px;
+  margin: 10px;
+  /*background-color:#1e6fc5;*/
+  color: white;
+  background-color: #009879;
+  font-weight: bold;
+}
+.submit-button:hover {
+  background-color: #ffff;
+  color: #009879;
+  font-size: 15px;
+  font-weight: bold;
 }
 </style>
