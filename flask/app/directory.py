@@ -122,7 +122,7 @@ def new_record(table):
         try: 
             school_code = int(school_code)
         except ValueError:
-            return "District code must be an integer.",422
+            return "School code must be an integer.",422
         school = db.session.get(School, school_code)
         if school is not None:
             return "School with code " + str(school_code) + " already exists.", 422

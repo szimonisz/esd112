@@ -1,9 +1,7 @@
 <template>
   <div>
     <div class="modal-content">
-      <h1>{{ currentReport }}</h1>
-      <h3>Edit a Record:</h3>
-      <form name="editRecord" id="edit-record">
+      <form name="editRecord" class="edit-record">
         <div
           v-for="(field, index) in fields"
           :key="index"
@@ -38,7 +36,7 @@
       </form>
       <button
         type="submit"
-        @click="submitRecordUpdate(record.code)"
+        @click="$emit('submitButtonClicked', record)"
         id="submit-button"
       >
         Submit
@@ -48,62 +46,15 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
-  props: ["currentReport", "currentRecord", "fields"],
+  props: ["currentReport", "currentRecord", "fields", "isNewRecord"],
   data() {
     return {
       record: {},
-      isNewRecord: null,
     };
   },
-  created() {
+  mounted() {
     this.record = this.currentRecord;
-    this.isNewRecord = this.isEmpty(this.currentRecord);
-  },
-
-  methods: {
-    isEmpty(obj) {
-      return Object.keys(obj).length == 0;
-    },
-    newRecord() {
-      console.log(this.record);
-      const path = "http://localhost:80/" + this.currentReport;
-      axios
-        .post(path, this.record)
-        .then((res) => {
-          console.log(res.data);
-            this.$emit("submitButtonClicked");
-        })
-        .catch((err) => {
-          console.log("hi");
-          if (err.response){
-            console.log(err.response.status)
-            if (err.response.status == '422'){
-              alert(err.response.data);
-            }
-          }
-          console.error(err);
-        });
-    },
-    submitRecordUpdate(id) {
-      if (this.isNewRecord) {
-        this.newRecord();
-      } else {
-        const path = "http://localhost:80/" + this.currentReport + "/" + id;
-        console.log(this.currentRecord);
-        axios
-          //.post(
-          .patch(path, this.record)
-          .then((res) => {
-            console.log(res.data);
-            this.$emit("submitButtonClicked");
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-      }
-    },
   },
 };
 </script>

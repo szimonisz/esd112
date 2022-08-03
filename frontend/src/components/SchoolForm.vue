@@ -1,8 +1,6 @@
 <template>
   <div class="modal-content">
-    <h1>{{ currentReport }}</h1>
-    <h3>Edit a Record:</h3>
-    <form name="editRecord" id="edit-record">
+    <form name="editRecord" class="edit-record">
       <div
         v-for="(field, index) in this.fields"
         :key="index"
@@ -69,7 +67,8 @@
             ref="schoolCategoriesRef"
           >
             <input
-              v-if="!(currentRecord['school_categories'] === undefined) &&
+              v-if="
+                !(currentRecord['school_categories'] === undefined) &&
                 currentRecord.school_categories.includes(
                   currentRecord.school_categories.find(
                     (el) => el.id === schoolCategory.id
@@ -108,7 +107,7 @@
     </form>
     <button
       type="submit"
-      @click="submitRecordUpdate(currentRecord.code)"
+      @click="saveSchoolCategoriesAndSubmit()"
       id="submit-button"
     >
       Submit
@@ -117,10 +116,9 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
   props: [
-    "modalActive",
+    "isNewRecord",
     "currentReport",
     "currentRecord",
     "fields",
@@ -135,52 +133,28 @@ export default {
       newDistrictName: null,
       record: {},
       selectedSchoolCategories: [],
-      isNewRecord: null,
     };
   },
   mounted() {
     this.record = this.currentRecord;
-    this.isNewRecord = this.isEmpty(this.currentRecord);
   },
-
   methods: {
-    newRecord() {
-      console.log(this.record);
-      const path = "http://localhost:80/" + this.currentReport;
-      axios
-        .post(path, this.record)
-        .then((res) => {
-          console.log(res.data);
-            this.$emit("submitButtonClicked");
-        })
-        .catch((err) => {
-          console.log("hi");
-          if (err.response){
-            console.log(err.response.status)
-            if (err.response.status == '422'){
-              alert(err.response.data);
-            }
-          }
-          console.error(err);
-        });
+    saveSchoolCategoriesAndSubmit(){
+      this.schoolCategoriesSelected();
+      this.record["school_category_ids"] = this.selectedSchoolCategories;
+      this.$emit("submitButtonClicked",this.record);
     },
-    isEmpty(obj) {
-      return Object.keys(obj).length == 0;
-    },
-    schoolCategoriesChecked() {
-      console.log(this.$refs.schoolCategoriesRef);
+    schoolCategoriesSelected() {
       this.$refs.schoolCategoriesRef.forEach((schoolCategory) => {
         if (schoolCategory.children[0].checked) {
           this.selectedSchoolCategories.push(schoolCategory.children[0].id);
         }
       });
-      console.log(this.selectedSchoolCategories);
     },
     updateDistrictCode(event) {
       let code = event.target.value;
       for (let district of this.districts) {
         if (district.code == code) {
-          console.log(district.name);
           this.newDistrictName = district.name;
         }
       }
@@ -189,34 +163,16 @@ export default {
       let code = event.target.value;
       for (let esd of this.esds) {
         if (esd.code == code) {
-          console.log("hi");
           this.newESDName = esd.name;
         }
       }
     },
-  submitRecordUpdate(id) {
-    if (this.isNewRecord) {
-      this.schoolCategoriesChecked();
-      this.record['school_category_ids'] = this.selectedSchoolCategories;
-      this.newRecord();
-    } else {
-    this.schoolCategoriesChecked();
-    this.record['school_category_ids'] = this.selectedSchoolCategories;
-    const path = "http://localhost:80/" + this.currentReport + "/" + id;
-    console.log(this.record);
-    axios
-      .patch(path, this.record)
-      .then((res) => {
-        console.log(res.data);
-        this.$emit("submitButtonClicked");
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-    }
   },
-},
 };
 </script>
 
-<style></style>
+<style>
+.school-category-selection {
+  padding: 0px;
+}
+</style>

@@ -1,43 +1,50 @@
 <template>
   <div>
     <transition name="modal-animation">
-      <!-- Only show this if modalActive is true-->
-      <div v-if="modalActive" class="modal">
+      <div class="modal">
         <transition name="modal-animation-inner">
           <div class="modal-inner">
-            <DistrictForm
-              @submitButtonClicked="closeModalAfterSubmit()"
-              v-show="currentReport == 'district'"
-              :currentReport="currentReport"
-              :currentRecord="currentRecord"
-              :fields="fields"
-              :esds="esds"
-            ></DistrictForm>
-            <EsdForm
-              @submitButtonClicked="closeModalAfterSubmit()"
-              v-show="currentReport == 'esd'"
-              :currentReport="currentReport"
-              :currentRecord="currentRecord"
-              :fields="fields"
-            ></EsdForm>
-            <SchoolForm
-              @submitButtonClicked="closeModalAfterSubmit()"
-              v-show="currentReport == 'school'"
-              :currentReport="currentReport"
-              :currentRecord="currentRecord"
-              :fields="fields"
-              :esds="esds"
-              :districts="districts"
-              :schoolCategories="schoolCategories"
-              :gradeCategories="gradeCategories"
-            ></SchoolForm>
-            <i
-              @mouseover="isHovering = true"
-              @mouseout="isHovering = false"
-              class="fa-circle-xmark"
-              :class="[isHovering ? 'fa-solid' : 'fa-regular']"
-              @click="closeModal()"
-            ></i>
+            <div class="modal-content">
+              <h1>{{ currentReport }}</h1>
+              <h3 v-if="isNewRecord">Add a Record:</h3>
+              <h3 v-else>Edit a Record:</h3>
+              <DistrictForm
+                @submitButtonClicked="submitRecordUpdate"
+                v-show="currentReport == 'district'"
+                :isNewRecord="isNewRecord"
+                :currentReport="currentReport"
+                :currentRecord="currentRecord"
+                :fields="fields"
+                :esds="esds"
+              ></DistrictForm>
+              <EsdForm
+                @submitButtonClicked="submitRecordUpdate"
+                v-show="currentReport == 'esd'"
+                :isNewRecord="isNewRecord"
+                :currentReport="currentReport"
+                :currentRecord="currentRecord"
+                :fields="fields"
+              ></EsdForm>
+              <SchoolForm
+                @submitButtonClicked="submitRecordUpdate"
+                v-show="currentReport == 'school'"
+                :isNewRecord="isNewRecord"
+                :currentReport="currentReport"
+                :currentRecord="currentRecord"
+                :fields="fields"
+                :esds="esds"
+                :districts="districts"
+                :schoolCategories="schoolCategories"
+                :gradeCategories="gradeCategories"
+              ></SchoolForm>
+              <i
+                @mouseover="isHovering = true"
+                @mouseout="isHovering = false"
+                class="fa-circle-xmark"
+                :class="[isHovering ? 'fa-solid' : 'fa-regular']"
+                @click="closeModal()"
+              ></i>
+            </div>
           </div>
         </transition>
       </div>
@@ -49,6 +56,7 @@
 import DistrictForm from "../components/DistrictForm.vue";
 import EsdForm from "../components/EsdForm.vue";
 import SchoolForm from "../components/SchoolForm.vue";
+import axios from "axios";
 export default {
   components: {
     DistrictForm,
@@ -56,7 +64,7 @@ export default {
     SchoolForm,
   },
   props: [
-    "modalActive",
+    "isNewRecord",
     "currentReport",
     "currentRecord",
     "fields",
@@ -74,34 +82,46 @@ export default {
   },
 
   methods: {
-    closeModalAfterSubmit(){
+    newRecord(record) {
+      const path = "http://localhost:80/" + this.currentReport;
+      axios
+        .post(path, record)
+        .then(() => {
+          this.closeModalAfterSubmit();
+        })
+        .catch((err) => {
+          if (err.response){
+            if (err.response.status == '422'){
+              alert(err.response.data);
+            }
+          }
+          console.error(err);
+        });
+    },
+    submitRecordUpdate(record) {
+      if (this.isNewRecord) {
+        this.newRecord(record);
+      } else {
+        const path = "http://localhost:80/" + this.currentReport + "/" + record.code;
+        axios
+          //.post(
+          .patch(path, record)
+          .then(() => {
+            this.closeModalAfterSubmit();
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      }
+    },
+    closeModalAfterSubmit() {
       this.closeModal();
       this.$emit("submitButtonClicked");
-    },
-    updateDistrictCode(event) {
-      let code = event.target.value;
-      for (let district of this.districts) {
-        if (district.code == code) {
-          console.log(district.name);
-          this.newDistrictName = district.name;
-        }
-      }
-    },
-    updateESDCode(event) {
-      let code = event.target.value;
-      for (let esd of this.esds) {
-        if (esd.code == code) {
-          console.log("hi");
-          this.newESDName = esd.name;
-        }
-      }
     },
     closeModal() {
       this.$emit("closeButtonClicked");
     },
   },
-  mounted(){
-  }
 };
 </script>
 
@@ -129,6 +149,12 @@ export default {
   border: 1px solid;
   overflow: scroll;
 }
+.modal-content label {
+  padding-bottom: 10px;
+}
+.modal-content h1 {
+  text-transform: uppercase;
+}
 i {
   position: absolute;
   top: 15px;
@@ -138,5 +164,34 @@ i {
 }
 i::hover {
   color: grey;
+}
+.edit-record {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 2px;
+}
+.edit-record label {
+  display: inline-block;
+  width: 110px;
+  white-space: nowrap;
+}
+.edit-record input select {
+  padding: 5px 10px;
+}
+.col1,
+.col2 {
+  padding-bottom: 20px;
+  margin-bottom: 10px;
+}
+.col1 {
+  grid-column: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  padding-right: 5px;
+}
+.col2 {
+  grid-column: 2 / 3;
+  display: flex;
+  flex-direction: column;
 }
 </style>

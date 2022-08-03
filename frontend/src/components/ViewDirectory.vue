@@ -1,9 +1,10 @@
 <template>
   <div id="container">
     <ModalMinimal
-      @closeButtonClicked="modalActive = false"
+      v-if="modalActive"
+      @closeButtonClicked="closeModal()"
       @submitButtonClicked="getAll(currentReport)"
-      :modalActive="modalActive"
+      :isNewRecord="isNewRecord"
       :currentReport="currentReport"
       :currentRecord="currentRecord"
       :fields="fields"
@@ -43,19 +44,6 @@
     </div>
     <div id="add-record-container">
       <button @click="addRecord()">Add Record</button>
-      <ModalMinimal
-        @closeButtonClicked="closeModal()"
-        @submitButtonClicked="getAll(currentReport)"
-        :modalActive="modalActive"
-        :currentReport="currentReport"
-        :currentRecord="currentRecord"
-        :fields="fields"
-        :esds="esds"
-        :districts="districts"
-        :schoolCategories="schoolCategories"
-        :gradeCategories="gradeCategories"
-      >
-      </ModalMinimal>
     </div>
     <div>
       <table id="record-table" v-if="fields && recordList">
@@ -71,7 +59,8 @@
           <tr v-for="(item, index) in recordList" :key="index">
             <td v-for="field in fields" :key="field.value">
               {{
-                field.fieldName == "school_categories" && !(item.school_categories === undefined)
+                field.fieldName == "school_categories" &&
+                !(item.school_categories === undefined)
                   ? item.school_categories
                       .map((value) => value.title)
                       .join(",\n")
@@ -92,7 +81,6 @@
 </template>
 
 <script>
-//import Modal from "../components/EditModal.vue";
 import ModalMinimal from "../components/EditModalMinimal.vue";
 import axios from "axios";
 export default {
@@ -147,10 +135,8 @@ export default {
       { tableHeader: "AYP Code", fieldName: "ayp_code" },
       { tableHeader: "Grade Category", fieldName: "grade_category" },
     ];
-
     return {
       currentReport: null,
-      //currentRecord: null,
       currentRecord: {},
       recordList: null,
       fields: null,
@@ -162,6 +148,7 @@ export default {
       districts: [],
       schoolCategories: [],
       gradeCategories: [],
+      isNewRecord: null,
     };
   },
   methods: {
@@ -170,7 +157,6 @@ export default {
       this.currentRecord = {};
     },
     updateReportType(reportType) {
-      //this.currentRecord = null;
       this.currentRecord = {};
       this.currentReport = reportType;
 
@@ -182,7 +168,6 @@ export default {
         this.fields = this.schoolFields;
       }
       this.getAll(reportType);
-      console.log(this.fields);
     },
     getAll(tableName) {
       const path = "http://localhost:80/" + tableName + "/all";
@@ -216,8 +201,7 @@ export default {
       const path = "http://localhost:80/" + this.currentReport + "/" + id;
       axios
         .delete(path)
-        .then((res) => {
-          console.log(res.data);
+        .then(() => {
           this.getAll(this.currentReport);
         })
         .catch((err) => {
@@ -225,17 +209,18 @@ export default {
         });
     },
     editRecord(id) {
+      this.isNewRecord = false;
       this.getRecord(id);
     },
     addRecord() {
-      this.modalActive= true;
+      this.modalActive = true;
+      this.isNewRecord = true;
     },
     getRecord(id) {
       const path = "http://localhost:80/" + this.currentReport + "/" + id;
       axios
         .get(path)
         .then((res) => {
-          console.log(res.data);
           this.currentRecord = res.data;
           this.modalActive = true;
         })
@@ -304,44 +289,6 @@ tbody tr:nth-of-type(odd) {
 #container {
   display: inline-block;
   min-width: 100%;
-}
-.modal-content label {
-  padding-bottom: 10px;
-}
-.modal-content h1 {
-  text-transform: uppercase;
-}
-#edit-record {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 2px;
-}
-#edit-record label {
-  display: inline-block;
-  width: 110px;
-  white-space: nowrap;
-}
-#edit-record input select {
-  padding: 5px 10px;
-}
-.col1,
-.col2 {
-  padding-bottom: 20px;
-  margin-bottom: 10px;
-}
-.col1 {
-  grid-column: 1 / 2;
-  display: flex;
-  flex-direction: column;
-  padding-right: 5px;
-}
-.col2 {
-  grid-column: 2 / 3;
-  display: flex;
-  flex-direction: column;
-}
-.school-category-selection {
-  padding: 0px;
 }
 #add-record-container {
   padding: 20px;
