@@ -16,10 +16,6 @@ export default {
 </script>
 <style>
 
-:root {
-  /*--background: rgba(0, 214, 170, .85);*/
-  --background: rgb(82, 121, 111);
-}
 body {
   margin: 0;
   font-weight: 30;
@@ -55,7 +51,8 @@ nav a:hover {
   color: black;
 }
 #header {
-  background: var(--background);
+  /*background: rgb(82, 121, 111); */
+  background: #009879;
   display: grid;
   grid-template-columns: 1fr auto minmax(600px, 3fr) 1fr;
   width: 100%;

@@ -41,9 +41,9 @@
         name="report_type"
         value="School"
       />
-    </div>
-    <div id="add-record-container">
-      <button @click="addRecord()">Add Record</button>
+      <div id="add-record-container">
+        <button @click="addRecord()">New {{ currentReportCapitalized }}</button>
+      </div>
     </div>
     <div>
       <table id="record-table" v-if="fields && recordList">
@@ -159,6 +159,7 @@ export default {
       gradeCategories: [],
       // determines if 'add new record' or 'edit existing record' form modal is opened
       isNewRecord: null,
+      currentReportCapitalized: null
     };
   },
   methods: {
@@ -172,10 +173,13 @@ export default {
 
       if (reportType == "esd") {
         this.fields = this.esdFields;
+        this.currentReportCapitalized = "ESD";
       } else if (reportType == "district") {
         this.fields = this.districtFields;
+        this.currentReportCapitalized = "District";
       } else {
         this.fields = this.schoolFields;
+        this.currentReportCapitalized = "School";
       }
       this.getAll(reportType);
     },
@@ -256,7 +260,7 @@ export default {
 <style>
 .radio-group {
   border-top: 1px white solid;
-  border-bottom: 1px white solid;
+  /*border-bottom: 1px white solid;*/
   background-color: #009879;
   display: flex;
   font-weight: bold;
@@ -295,7 +299,8 @@ tbody tr:nth-of-type(odd) {
 }
 .radio-group input[type="radio"],
 .radio-group label,
-.radio-group p {
+.radio-group p,
+.radio-group button {
   vertical-align: baseline;
   padding: 10px;
   margin: 10px;
@@ -304,11 +309,18 @@ tbody tr:nth-of-type(odd) {
   display: inline-block;
   min-width: 100%;
 }
-#add-record-container {
-  padding: 20px;
-  background: #009879;
-}
 #add-record-container button {
-  padding: 20px;
+  transition-duration: 0.4s;
+  text-transform: capitalize;
+  background-color: #ffff;
+  border-radius: 12px;
+  border: 2px solid #f3f3f3;
+  font-size: 12px;
+}
+#add-record-container button:hover {
+  font-size: 12px;
+  background-color:blue;
+  color: white;
+  
 }
 </style>
