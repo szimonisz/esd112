@@ -10,7 +10,7 @@ from sqlalchemy import func
 directory_blueprint = Blueprint('directory_blueprint',__name__)
 
 # Update a record for a given table with a given record id
-@directory_blueprint.route("/<table>/<id>", methods=['PATCH'])
+@directory_blueprint.route("/api/<table>/<id>", methods=['PATCH'])
 def update_record(table,id):
     # note: json().get() will return None if key does not exist in request
     data = request.get_json()
@@ -95,7 +95,7 @@ def update_record(table,id):
     return 'Success!'
 
 # Create a new record for a given table
-@directory_blueprint.route('/<table>', methods=['POST'])
+@directory_blueprint.route('/api/<table>', methods=['POST'])
 def new_record(table):
     data = request.get_json()
 
@@ -194,7 +194,7 @@ def new_record(table):
     return "Success!"
 
 # Return a list of all records for a given table
-@directory_blueprint.route('/<table>/all', methods=['GET'])
+@directory_blueprint.route('/api/<table>/all', methods=['GET'])
 def all_records(table):
     if table == 'esd':
         esds = db.session.query(ESD, Address, Administrator).outerjoin(Address, ESD.address_id == Address.id).outerjoin(
@@ -281,7 +281,7 @@ def all_records(table):
         return "Table does not exist.", 405
 
 # Delete a record form a given table with a given record id
-@directory_blueprint.route("/<table>/<id>", methods=['DELETE'])
+@directory_blueprint.route("/api/<table>/<id>", methods=['DELETE'])
 def delete_record(table,id):
     if table == 'esd':
         esd = db.session.query(ESD).get(id)
@@ -306,7 +306,7 @@ def delete_record(table,id):
     else: 
         return "Table does not exist.", 405
 
-@directory_blueprint.route("/<table>/<id>", methods=['GET'])
+@directory_blueprint.route("/api/<table>/<id>", methods=['GET'])
 def get_record(table,id):
     if table == 'esd':
         query = db.session.query(ESD, Address, Administrator).outerjoin(Address, ESD.address_id == Address.id).outerjoin(

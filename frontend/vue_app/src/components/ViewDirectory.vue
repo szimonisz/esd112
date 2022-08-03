@@ -188,7 +188,7 @@ export default {
       this.getAll(reportType);
     },
     getAll(tableName) {
-      const path = "http://localhost:80/" + tableName + "/all";
+      const path = "http://localhost:80/api/" + tableName + "/all";
       this.loading = true;
       this.recordList = null;
       axios
@@ -223,7 +223,7 @@ export default {
         });
     },
     deleteRecord(id) {
-      const path = "http://localhost:80/" + this.currentReport + "/" + id;
+      const path = "http://localhost:80/api/" + this.currentReport + "/" + id;
       axios
         .delete(path)
         .then(() => {
@@ -242,7 +242,7 @@ export default {
       this.isNewRecord = true;
     },
     getRecord(id) {
-      const path = "http://localhost:80/" + this.currentReport + "/" + id;
+      const path = "http://localhost:80/api/" + this.currentReport + "/" + id;
       axios
         .get(path)
         .then((res) => {

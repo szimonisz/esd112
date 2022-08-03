@@ -6,15 +6,15 @@ services:
         container_name: flask
         restart: always
         expose:
-          - 5000
+          - 8080 
         # mount the project directory (the current directory) from the developer's local system to /app inside the container
         # this will allow the developer to make local changes, and have those changes be reflected by the container (without having to rebuild it)
         # bind mount will not work with MKDIR (required for production)
         #volumes:
         #  - ./flask:/app
-    nginx:
-      build: ./nginx
-      container_name: nginx
+    vue-nginx:
+      build: ./frontend
+      container_name: vue_nginx
       restart: always
       # map ports from host machine to the container
       # host:container

@@ -3,6 +3,13 @@ import UploadDirectory from '../components/UploadDirectory.vue'
 import ViewDirectory from '../components/ViewDirectory.vue'
 
 const routes = [
+  { 
+    path: '/', 
+    redirect: 
+      { 
+        name: 'upload' 
+      } 
+  },
   {
     path: '/upload',
     name: 'upload',

@@ -55,7 +55,7 @@ export default {
       this.loading = true;
       this.uploadList = null;
       const fileInput = this.$refs.file.files[0];
-      const path = "http://localhost:80/upload";
+      const path = "http://localhost:80/api/upload";
       axios
         .post(
           path,
@@ -81,7 +81,7 @@ export default {
         });
     },
     getUploadHistory() {
-      const path = "http://localhost:80/upload/all";
+      const path = "http://localhost:80/api/upload/all";
       this.loading = true;
       axios
         .get(path)
@@ -100,7 +100,7 @@ export default {
         });
     },
     deleteUpload(id) {
-      const path = "http://localhost:80/upload/" + id;
+      const path = "http://localhost:80/api/upload/" + id;
       axios
         .delete(path)
         .then(() => {

@@ -1,4 +1,4 @@
-FROM python
+FROM python:3.9
 
 # Copy all files from Dockerfile's current directory to the folder /esd112 inside the image
 COPY . /esd112
@@ -9,8 +9,9 @@ RUN mkdir /esd112/app/uploads
 WORKDIR /esd112
 
 # server will reload itself on file changes if in development mode
-ENV FLASK_ENV=development
-ENV PYTHONUNBUFFERED=1
+#ENV FLASK_ENV=development
+# enable python print() stdout
+#ENV PYTHONUNBUFFERED=1
 
 # Run a shell command on top of the current image
 # Install all python dependencies found in the requirements.txt file using pip

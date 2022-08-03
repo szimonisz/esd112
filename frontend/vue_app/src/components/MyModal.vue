@@ -83,7 +83,7 @@ export default {
 
   methods: {
     newRecord(record) {
-      const path = "http://localhost:80/" + this.currentReport;
+      const path = "http://localhost:80/api/" + this.currentReport;
       axios
         .post(path, record)
         .then(() => {
@@ -103,7 +103,7 @@ export default {
         this.newRecord(record);
       } else {
         const path =
-          "http://localhost:80/" + this.currentReport + "/" + record.code;
+          "http://localhost:80/api/" + this.currentReport + "/" + record.code;
         axios
           //.post(
           .patch(path, record)

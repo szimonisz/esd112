@@ -13,7 +13,7 @@ upload_blueprint = Blueprint('upload_blueprint', __name__)
 #           - Each District is paired with an ESD
 #           - Each School is paired with a District
 
-@upload_blueprint.route("/upload", methods=['POST'])
+@upload_blueprint.route("/api/upload", methods=['POST'])
 def upload():
     if 'file' not in request.files:
         return "File not in request.files"

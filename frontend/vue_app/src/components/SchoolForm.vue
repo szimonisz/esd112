@@ -12,13 +12,25 @@
         <input
           v-if="field.fieldName == 'esd_code'"
           type="text"
-          v-model="record.esd_code"
+          :value="
+            newESDCode 
+              ? newESDCode 
+              : currentRecord
+              ? currentRecord.esd_code
+              : ''
+          "
           disabled
         />
         <input
           v-else-if="field.fieldName == 'esd_name'"
           type="text"
-          v-model="record.esd_name"
+          :value="
+            newESDName
+              ? newESDName
+              : currentRecord
+              ? currentRecord.esd_name
+              : ''
+          "
           disabled
         />
         <select
@@ -129,8 +141,9 @@ export default {
   ],
   data() {
     return {
-      newESDName: null,
       newDistrictName: null,
+      newESDName: null,
+      newESDCode: null,
       record: {},
       selectedSchoolCategories: [],
     };
@@ -158,6 +171,13 @@ export default {
       for (let district of this.districts) {
         if (district.code == code) {
           this.newDistrictName = district.name;
+          let esd_code = district.esd_code;
+          for (let esd of this.esds) {
+            this.newESDCode = esd_code;
+            if (esd.code == esd_code){
+              this.newESDName = esd.name;
+            }
+          }
         }
       }
     },
