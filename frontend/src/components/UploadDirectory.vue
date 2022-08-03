@@ -56,7 +56,7 @@ export default {
             },
           }
         )
-        .then((res) => {
+        .then(() => {
           console.log("File Upload: Success");
           this.getUploadHistory();
         })
@@ -83,7 +83,7 @@ export default {
     deleteUpload(id) {
       const path = "http://localhost:80/upload/"+id;
       axios.delete(path)
-        .then((res) => {
+        .then(() => {
             this.getUploadHistory();
         })
         .catch((err) => {

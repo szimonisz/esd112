@@ -23,7 +23,7 @@
         />
         <select
           v-else-if="field.fieldName == 'district_code'"
-          @change="updateDistrictCode($event)"
+          @change="updateDistrictName($event)"
           v-model="record.district_code"
         >
           <option
@@ -139,11 +139,7 @@ export default {
     this.record = this.currentRecord;
   },
   methods: {
-    saveSchoolCategoriesAndSubmit(){
-      this.schoolCategoriesSelected();
-      this.record["school_category_ids"] = this.selectedSchoolCategories;
-      this.$emit("submitButtonClicked",this.record);
-    },
+    // Generate a list of all selected School Categories
     schoolCategoriesSelected() {
       this.$refs.schoolCategoriesRef.forEach((schoolCategory) => {
         if (schoolCategory.children[0].checked) {
@@ -151,19 +147,17 @@ export default {
         }
       });
     },
-    updateDistrictCode(event) {
+    saveSchoolCategoriesAndSubmit(){
+      this.schoolCategoriesSelected();
+      this.record["school_category_ids"] = this.selectedSchoolCategories;
+      this.$emit("submitButtonClicked",this.record);
+    },
+    // Changes the disabled 'District Name' input text when a new 'District Code' options is selected
+    updateDistrictName(event) {
       let code = event.target.value;
       for (let district of this.districts) {
         if (district.code == code) {
           this.newDistrictName = district.name;
-        }
-      }
-    },
-    updateESDCode(event) {
-      let code = event.target.value;
-      for (let esd of this.esds) {
-        if (esd.code == code) {
-          this.newESDName = esd.name;
         }
       }
     },

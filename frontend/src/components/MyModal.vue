@@ -53,9 +53,9 @@
 </template>
 
 <script>
-import DistrictForm from "../components/DistrictForm.vue";
-import EsdForm from "../components/EsdForm.vue";
-import SchoolForm from "../components/SchoolForm.vue";
+import DistrictForm from "./DistrictForm.vue";
+import EsdForm from "./EsdForm.vue";
+import SchoolForm from "./SchoolForm.vue";
 import axios from "axios";
 export default {
   components: {

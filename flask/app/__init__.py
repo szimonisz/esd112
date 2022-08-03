@@ -11,7 +11,6 @@ UPLOAD_FOLDER = '/app/app/uploads'
 ALLOWED_EXTENSIONS = {'csv'}
 
 def create_app():
-
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///directory.db'
     app.config['ALLOWED_EXTENSIONS'] = ALLOWED_EXTENSIONS

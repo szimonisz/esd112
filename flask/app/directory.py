@@ -9,8 +9,10 @@ from sqlalchemy import func
 
 directory_blueprint = Blueprint('directory_blueprint',__name__)
 
+# Update a record for a given table with a given record id
 @directory_blueprint.route("/<table>/<id>", methods=['PATCH'])
 def update_record(table,id):
+    # note: json().get() will return None if key does not exist in request
     data = request.get_json()
     if table == 'esd':
         esd = db.session.get(ESD, id)
@@ -41,8 +43,8 @@ def update_record(table,id):
         grade_category = db.session.get(GradeCategory, school.grade_category_id)
         school.grade_category = grade_category
     else:
-        return "No such table"
-        
+        return "Table does not exist.", 405
+
     if data.get('address_id') is not None:
         address = db.session.get(Address, data.get('address_id'))
         address.line_one = data.get('line_one')
@@ -92,12 +94,14 @@ def update_record(table,id):
     db.session.commit()
     return 'Success!'
 
-
+# Create a new record for a given table
 @directory_blueprint.route('/<table>', methods=['POST'])
 def new_record(table):
-    # note: json().get() will return None if key does not exist in request
     data = request.get_json()
 
+    # note: json().get() will return None if key does not exist in request
+
+    # If new record was submitted without a primary key 
     if data.get('code') is None or data.get('code') == '':
         return "Need " + table.title() + " code to create entry.", 422
 
@@ -117,7 +121,6 @@ def new_record(table):
             return "District with code " + str(district_code) + " already exists.", 422
 
     elif table == 'school':
-
         school_code = data.get('code')
         try: 
             school_code = int(school_code)
@@ -127,7 +130,7 @@ def new_record(table):
         if school is not None:
             return "School with code " + str(school_code) + " already exists.", 422
     else:
-        return "No such table"
+        return "Table does not exist.", 405
 
     address = Address(
         line_one=data.get('line_one'),
@@ -190,6 +193,7 @@ def new_record(table):
     db.session.commit()
     return "Success!"
 
+# Return a list of all records for a given table
 @directory_blueprint.route('/<table>/all', methods=['GET'])
 def all_records(table):
     if table == 'esd':
@@ -273,10 +277,10 @@ def all_records(table):
             file_uploads_list.append(item.to_dict())
 
         return jsonify(file_uploads_list)
-
     else:
-        return "Table does not exist."
+        return "Table does not exist.", 405
 
+# Delete a record form a given table with a given record id
 @directory_blueprint.route("/<table>/<id>", methods=['DELETE'])
 def delete_record(table,id):
     if table == 'esd':
@@ -300,8 +304,7 @@ def delete_record(table,id):
         db.session.commit()
         return "FileUpload was successfully deleted"
     else: 
-        # need to return w/ HTTP error status
-        return "Cannot delete record from requested table."
+        return "Table does not exist.", 405
 
 @directory_blueprint.route("/<table>/<id>", methods=['GET'])
 def get_record(table,id):
@@ -353,5 +356,4 @@ def get_record(table,id):
                 school_dict.update({"esd_name": esd.name})
         return jsonify(school_dict)
     else:
-        # need to return w/ HTTP error status
-        return "Cannot get record from requested table."
+        return "Table does not exist.",405

@@ -136,18 +136,28 @@ export default {
       { tableHeader: "Grade Category", fieldName: "grade_category" },
     ];
     return {
+      // 'esd', 'district', or 'school'
       currentReport: null,
+      // populates modal form
       currentRecord: {},
+      // populates table
       recordList: null,
+      // populates table headers, gives access access to record attributes
       fields: null,
+      // determines if modal is open or not
       modalActive: false,
       esdFields: esdFields,
       districtFields: districtFields,
       schoolFields: schoolFields,
+      // used to populate ESD code options in District Form
       esds: [],
+      // used to populate District code options in School Form
       districts: [],
+      // used to populate SchoolCategory checkboxes in School Form
       schoolCategories: [],
+      // used to populate GradeCategory options in School Form
       gradeCategories: [],
+      // determines if 'add new record' or 'edit existing record' form modal is opened
       isNewRecord: null,
     };
   },
@@ -175,15 +185,19 @@ export default {
       axios
         .get(path)
         .then((res) => {
+          // Save the ESDs so they can be referenced in District Form's 'ESD Code, ESD Name' drop-down selector
           if (tableName == "esd") {
             this.esds = res.data;
           }
+          // Save the Districts so they can be referenced in School Form's 'District Code, District Name' drop-down selector
           if (tableName == "district") {
             this.districts = res.data;
           }
+          // Save the School Categories so they can be referenced in School Form's 'School Categories' checkbox selector
           if (tableName == "school_category") {
             this.schoolCategories = res.data;
           }
+          // Save the GradeCategories so they can be referenced in School Form's 'Grade Category' drop-down selector
           if (tableName == "grade_category") {
             this.gradeCategories = res.data;
           }

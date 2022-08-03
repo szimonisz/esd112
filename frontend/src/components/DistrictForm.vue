@@ -12,7 +12,7 @@
           </label>
           <select
             v-if="field.fieldName == 'esd_code'"
-            @change="updateESDCode($event)"
+            @change="updateESDName($event)"
             v-model="record.esd_code"
           >
             <option
@@ -83,7 +83,7 @@ export default {
     this.record = this.currentRecord;
   },
   methods: {
-    updateESDCode(event) {
+    updateESDName(event) {
       let code = event.target.value;
       for (let esd of this.esds) {
         if (esd.code == code) {
