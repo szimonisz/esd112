@@ -51,6 +51,8 @@ export default {
     };
   },
   methods: {
+    // Take the file object from the file input and POST it to backend
+    // Update upload history table if successful
     uploadFile() {
       this.loading = true;
       this.uploadList = null;
@@ -80,6 +82,7 @@ export default {
           console.error(err);
         });
     },
+    // Update the uploadList and display a table of the user's upload history.
     getUploadHistory() {
       const path = "http://localhost:80/api/upload/all";
       this.loading = true;

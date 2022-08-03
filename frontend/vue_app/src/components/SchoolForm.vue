@@ -160,21 +160,25 @@ export default {
         }
       });
     },
+    // Save the School's new school categories to the record and submit it
     saveSchoolCategoriesAndSubmit(){
       this.schoolCategoriesSelected();
       this.record["school_category_ids"] = this.selectedSchoolCategories;
       this.$emit("submitButtonClicked",this.record);
     },
-    // Changes the disabled 'District Name' input text when a new 'District Code' options is selected
+    // Changes the disabled 'District Name', 'ESD Code', and 'ESD Name' input text when a new 'District Code' option is selected
     updateDistrictName(event) {
       let code = event.target.value;
       for (let district of this.districts) {
         if (district.code == code) {
+          // change the displayed 'District Name' (disabled)
           this.newDistrictName = district.name;
           let esd_code = district.esd_code;
           for (let esd of this.esds) {
+            // change the displayed 'ESD Code' (disabled)
             this.newESDCode = esd_code;
             if (esd.code == esd_code){
+              // change the displayed 'ESD Name' (disabled)
               this.newESDName = esd.name;
             }
           }

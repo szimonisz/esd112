@@ -92,6 +92,7 @@ export default {
     Modal,
   },
   data() {
+    // These three lists of objects contain the CSV header fields and the attribute of each report's respective table in the database.
     let esdFields = [
       { tableHeader: "ESD Code", fieldName: "code" },
       { tableHeader: "ESD Name", fieldName: "name" },
@@ -171,6 +172,7 @@ export default {
       this.modalActive = false;
       this.currentRecord = {};
     },
+    // Update which report table is displayed, which 'Add' button is present
     updateReportType(reportType) {
       this.currentRecord = {};
       this.currentReport = reportType;
@@ -187,6 +189,7 @@ export default {
       }
       this.getAll(reportType);
     },
+    // Update the table, save some results as data to be used for record editing/adding functionality
     getAll(tableName) {
       const path = "http://localhost:80/api/" + tableName + "/all";
       this.loading = true;
@@ -241,6 +244,7 @@ export default {
       this.modalActive = true;
       this.isNewRecord = true;
     },
+    // Get a specific table record and display the modal to edit it
     getRecord(id) {
       const path = "http://localhost:80/api/" + this.currentReport + "/" + id;
       axios

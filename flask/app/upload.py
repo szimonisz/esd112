@@ -8,11 +8,14 @@ from .db import db
 
 upload_blueprint = Blueprint('upload_blueprint', __name__)
 
+# This blueprint handles the API endpoints for uploading a CSV file, checking if the file is valid, and inserting the values of the CSV file into the database.
+# The user may upload District, ESD, and School CSV reports.
 # NOTE: Three assumptions are made for a CSV upload:
 #           - Each CSV report will follow the same header format as those currently posted on the OSPI website
 #           - Each District is paired with an ESD
 #           - Each School is paired with a District
 
+# Receive file, check if valid, and insert into database using helper functions (insert_esd, insert_district, insert_school).
 @upload_blueprint.route("/api/upload", methods=['POST'])
 def upload():
     if 'file' not in request.files:
@@ -68,10 +71,12 @@ def upload():
 
     return "Success!"
 
+# Check if the uploaded file is allowed (.csv)
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
+# Insert ESD from CSV row into database.
 def insert_esd(row):
     esd = db.session.get(ESD, row['ESD Code'])
 
@@ -127,6 +132,7 @@ def insert_esd(row):
         db.session.add(esd)
 
 
+# Insert District from CSV row into database.
 def insert_district(row):
     district = db.session.get(District, row['DistrictCode'])
     # If District already exists in database
@@ -206,7 +212,7 @@ def insert_district(row):
         )
         db.session.add(district)
 
-
+# Insert School from CSV row into database.
 def insert_school(row):
     school = db.session.get(School, row['SchoolCode'])
     # If School already exists in database

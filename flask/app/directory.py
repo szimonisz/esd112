@@ -9,7 +9,7 @@ from sqlalchemy import func
 
 directory_blueprint = Blueprint('directory_blueprint',__name__)
 
-# Update a record for a given table with a given record id
+# Update a record for a given table, id
 @directory_blueprint.route("/api/<table>/<id>", methods=['PATCH'])
 def update_record(table,id):
     # note: json().get() will return None if key does not exist in request
@@ -306,6 +306,7 @@ def delete_record(table,id):
     else: 
         return "Table does not exist.", 405
 
+# Get a record for a given table, id
 @directory_blueprint.route("/api/<table>/<id>", methods=['GET'])
 def get_record(table,id):
     if table == 'esd':

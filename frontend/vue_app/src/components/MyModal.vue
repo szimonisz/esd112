@@ -82,6 +82,7 @@ export default {
   },
 
   methods: {
+    // POST a newly created record (belonging to the table of the current report type) to the backend
     newRecord(record) {
       const path = "http://localhost:80/api/" + this.currentReport;
       axios
@@ -98,6 +99,7 @@ export default {
           console.error(err);
         });
     },
+    // PUT an updated record (belonging to the table of the current report type) to the backend
     submitRecordUpdate(record) {
       if (this.isNewRecord) {
         this.newRecord(record);

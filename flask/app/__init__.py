@@ -25,7 +25,9 @@ def create_app():
 
 def setup_database(app):
     with app.app_context():
+        # Setup the database with the schema designed in models.py
         db.create_all()
+        # Create default SchoolCategory and GradeCategory records using the following two lists (data taken from the School report CSV)
         school_categories = [
             'Public School',
             'Regular School',

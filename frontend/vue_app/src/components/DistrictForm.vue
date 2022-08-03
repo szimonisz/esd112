@@ -83,6 +83,7 @@ export default {
     this.record = this.currentRecord;
   },
   methods: {
+    // Changes the disabled 'ESD Name' input text when a new 'ESD Code' option is selected
     updateESDName(event) {
       let code = event.target.value;
       for (let esd of this.esds) {
