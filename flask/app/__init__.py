@@ -19,6 +19,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'abcd123'
     CORS(app)
     db.init_app(app)
+    setup_database(app)
     app.register_blueprint(upload_blueprint)
     app.register_blueprint(directory_blueprint)
 
