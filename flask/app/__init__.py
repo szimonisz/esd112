@@ -6,8 +6,7 @@ from .upload import upload_blueprint
 from .directory import directory_blueprint
 from .models import SchoolCategory, GradeCategory
 
-# fix this!
-UPLOAD_FOLDER = '/app/app/uploads'
+UPLOAD_FOLDER = '/esd112/app/uploads'
 ALLOWED_EXTENSIONS = {'csv'}
 
 def create_app():

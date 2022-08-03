@@ -9,8 +9,9 @@ services:
           - 5000
         # mount the project directory (the current directory) from the developer's local system to /app inside the container
         # this will allow the developer to make local changes, and have those changes be reflected by the container (without having to rebuild it)
-        volumes:
-          - ./flask:/app
+        # bind mount will not work with MKDIR (required for production)
+        #volumes:
+        #  - ./flask:/app
     nginx:
       build: ./nginx
       container_name: nginx
