@@ -123,6 +123,9 @@ export default {
       { tableHeader: "School Name", fieldName: "name" },
       { tableHeader: "Lowest Grade", fieldName: "lowest_grade" },
       { tableHeader: "Highest Grade", fieldName: "highest_grade" },
+      { tableHeader: "School Categories", fieldName: "school_categories" },
+      { tableHeader: "AYP Code", fieldName: "ayp_code" },
+      { tableHeader: "Grade Category", fieldName: "grade_category" },
       { tableHeader: "Address Line 1", fieldName: "line_one" },
       { tableHeader: "Address Line 2", fieldName: "line_two" },
       { tableHeader: "City", fieldName: "city" },
@@ -131,9 +134,6 @@ export default {
       { tableHeader: "Principal Name", fieldName: "firstname" },
       { tableHeader: "Phone", fieldName: "phone_number" },
       { tableHeader: "Email", fieldName: "email" },
-      { tableHeader: "School Categories", fieldName: "school_categories" },
-      { tableHeader: "AYP Code", fieldName: "ayp_code" },
-      { tableHeader: "Grade Category", fieldName: "grade_category" },
     ];
     return {
       // 'esd', 'district', or 'school'
