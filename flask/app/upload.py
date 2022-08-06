@@ -19,10 +19,10 @@ upload_blueprint = Blueprint('upload_blueprint', __name__)
 @upload_blueprint.route("/api/upload", methods=['POST'])
 def upload():
     if 'file' not in request.files:
-        return "File not in request.files"
+        return "File not in included in request.", 422
     file = request.files['file']
     if file.filename == '':
-        return "Filename is empty"
+        return "Filename is empty.", 422
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
@@ -56,7 +56,7 @@ def upload():
             elif sorted(headers) == sorted(district_headers):
                 report_type = 'district'
             else:
-                return "Upload failed. CSV does not have proper ESD, District, or School headers"
+                return "Upload failed. CSV does not have proper ESD, District, or School headers", 422
 
             for row in csv_reader:
                 if report_type == 'esd':
@@ -68,6 +68,9 @@ def upload():
 
                 db.session.flush()
             db.session.commit()
+    else:
+        return "Wrong file type. .CSV file is required.", 415
+
 
     return "Success!"
 
