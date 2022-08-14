@@ -1,4 +1,4 @@
-# esd112
+# OSPI Education Directory Web App
 
 ## Instructions:
 
